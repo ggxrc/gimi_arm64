@@ -46,6 +46,9 @@ set(GIMI_SOURCES
     src/textures/image_state_tracker.cpp
     src/textures/texture_loader.cpp
     src/textures/texture_swapper.cpp
+    # Phase 05: Android Launcher App & Injector Manager
+    src/launcher/mod_manager_service.cpp
+    src/launcher/shizuku_layer_injector.cpp
     # inih C library (third_party)
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
 )

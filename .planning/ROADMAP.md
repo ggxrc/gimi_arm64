@@ -10,6 +10,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
 - [x] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [x] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
+- [x] **Phase 5: Android Launcher App (GUI) & Manager de Injeção** - Interface Android nativa para gerenciar mods e ativar a Vulkan Layer sem root
 
 ## Phase Details
 
@@ -72,10 +73,25 @@ Plans:
 - [x] 04-01: Interceptação de Descriptor Sets e Uploads de Textura Vulkan
 - [x] 04-02: Carregador e substituidor de texturas nos formatos ASTC/ETC2/RGBA8
 
+### Phase 5: Android Launcher App (GUI) & Manager de Injeção
+**Goal:** Criar o aplicativo Android nativo (GUI) para gerenciamento visual de mods e injeção transparente da Vulkan Layer sem root.
+**Mode:** mvp
+**Depends on:** Phase 4
+**Requirements:** [LAUNCHER-01, LAUNCHER-02, LAUNCHER-03]
+**Success Criteria**:
+  1. App Android exibe interface amigável listando mods da pasta `/sdcard/GIMI/Mods/` com toggles de ativado/desativado.
+  2. Suporte a injeção da `libgimi_arm64.so` sem root via Shizuku / Wireless Debugging.
+  3. Auto-detecção de todas as distribuições do jogo (Play Store, Galaxy Store, China).
+**Plans:** Complete
+
+Plans:
+- [x] 05-01: Interface Android (GUI) e Gerenciador de Arquivos de Mods
+- [x] 05-02: Módulo de Injeção de Vulkan Layer sem Root (Shizuku API & ADB Manager)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -83,3 +99,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 2. Parser 3dmigoto & Hashes | 2/2 | Complete | 2026-08-03 |
 | 3. Substituição de Modelos & Shader Fixes | 3/3 | Complete | 2026-08-03 |
 | 4. Pipeline de Texturas Mobile | 2/2 | Complete | 2026-08-03 |
+| 5. Android Launcher App (GUI) | 2/2 | Complete | 2026-08-03 |
