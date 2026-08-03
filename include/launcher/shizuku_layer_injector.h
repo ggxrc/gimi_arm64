@@ -13,7 +13,7 @@ namespace gimi {
 
 enum class GameDistribution {
     PlayStore,    // com.miHoYo.GenshinImpact
-    GalaxyStore,  // com.miHoYo.GenshinImpact.samsung
+    GalaxyStore,  // com.miHoYo.GI.samsung
     ChinaServer,  // com.yuanshen.site
     Bilibili      // com.miHoYo.ys.bilibili
 };

@@ -11,8 +11,9 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [x] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
 - [x] **Phase 5: Android Launcher App (GUI) & Manager de Injeção** - Interface Android nativa para gerenciar mods e ativar a Vulkan Layer sem root
-- [x] **Phase 6: Compilação & Testes de Integração do Launcher App** - Build Gradle/NDK do APK e testes de integração do Launcher
-- [ ] **Phase 7: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
+- [x] **Phase 6: Compilação & Testes de Integração do Launcher App** - Build Termux/NDK do APK e testes de integração do Launcher
+- [ ] **Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)** - Interface Android nativa em Jetpack Compose Material 3 com NavGraph de 3 telas e JNI Native Bridge
+- [ ] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 
 ## Phase Details
 
@@ -91,23 +92,38 @@ Plans:
 - [x] 05-02: Módulo de Injeção de Vulkan Layer sem Root (Shizuku API & ADB Manager)
 
 ### Phase 6: Compilação & Testes de Integração do Launcher App
-**Goal:** Configurar o build do APK Android (Gradle + CMake) e testar a integração do Launcher com o motor nativo.
+**Goal:** Configurar o build do APK Android no Termux (AAPT2 + D8 + CMake) e testar a integração do Launcher com o motor nativo.
 **Mode:** mvp
 **Depends on:** Phase 5
 **Requirements:** [BUILD-01, TEST-01]
 **Success Criteria**:
-  1. Gradle compila o C++20 nativo em `libgimi_arm64.so` e empacota o APK `GIMI-Launcher.apk`.
-  2. Suíte de testes valida escaneamento de mods e chamadas do Shizuku.
+  1. Script `build_termux.sh` compila C++20 nativo em `libgimi_arm64.so`, compila Java/Kotlin em `classes.dex`, alinha e assina o APK `GIMI-Launcher.apk`.
+  2. Suíte de testes valida escaneamento de mods e chamadas do Shizuku com `apksigner verify` limpo.
 **Plans:** Complete
 
 Plans:
-- [x] 06-01: Integração de Build Gradle NDK CMake e empacotamento do APK
-- [x] 06-02: Testes de Integração do Launcher e serviço de injeção
+- [x] 06-01: Script de Build Leve no Termux (AAPT2 + D8 + CMake + OpenJDK-21 + Keystore)
+- [x] 06-02: Testes de Integração e Validação do APK Termux
 
-### Phase 7: Suporte a OpenGL ES & Testes E2E com Mod Existente
-**Goal:** Implementar o suporte a OpenGL ES (GLES 3.x) e realizar o teste E2E completo com um mod real do 3dmigoto.
+### Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)
+**Goal:** Desenvolver a interface gráfica do Launcher Android em Jetpack Compose (Material 3) com NavGraph de 3 telas (Dashboard, Mod Manager, Settings) e JNI Native Bridge para interagir com a `libgimi_arm64.so`.
 **Mode:** mvp
 **Depends on:** Phase 6
+**Requirements:** [COMPOSE-01, NAV-01, JNI-01]
+**Success Criteria**:
+  1. App compilado em APK instalável com 3 telas navegáveis via NavGraph (Dashboard, Mod Manager, Settings).
+  2. Lista visual de mods com cards, busca, toggles ativado/desativado integrados via JNI Native Bridge (`GimiNativeBridge`).
+  3. Painel de controle de status da Vulkan Layer e ativação via Shizuku aguardando interação do usuário.
+**Plans:** TBD
+
+Plans:
+- [ ] 07-01: Estrutura Jetpack Compose (Material 3), Navigation NavGraph e JNI Native Bridge
+- [ ] 07-02: Componentes Visuais do Mod Manager, Dashboard e Painel de Injeção Vulkan
+
+### Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente
+**Goal:** Implementar o suporte a OpenGL ES (GLES 3.x) e realizar o teste E2E completo com um mod real do 3dmigoto.
+**Mode:** mvp
+**Depends on:** Phase 7
 **Requirements:** [GLES-01, MOD-TEST-01]
 **Success Criteria**:
   1. Camada de interceptação OpenGL ES (GLES/EGL) intercepta draw calls e texturas.
@@ -115,13 +131,13 @@ Plans:
 **Plans:** TBD
 
 Plans:
-- [ ] 07-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
-- [ ] 07-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
+- [ ] 08-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
+- [ ] 08-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -131,4 +147,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Pipeline de Texturas Mobile | 2/2 | Complete | 2026-08-03 |
 | 5. Android Launcher App (GUI) | 2/2 | Complete | 2026-08-03 |
 | 6. Compilação & Testes do Launcher | 2/2 | Complete | 2026-08-03 |
-| 7. Suporte OpenGL ES & Teste com Mod Real | 0/2 | Planned | - |
+| 7. Android Launcher GUI (Jetpack Compose) | 0/2 | Planned | - |
+| 8. Suporte OpenGL ES & Teste com Mod Real | 0/2 | Planned | - |

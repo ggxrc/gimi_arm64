@@ -16,7 +16,7 @@ ShizukuLayerInjector& ShizukuLayerInjector::instance() noexcept {
 std::string ShizukuLayerInjector::get_package_name(GameDistribution dist) noexcept {
     switch (dist) {
         case GameDistribution::PlayStore:   return "com.miHoYo.GenshinImpact";
-        case GameDistribution::GalaxyStore: return "com.miHoYo.GenshinImpact.samsung";
+        case GameDistribution::GalaxyStore: return "com.miHoYo.GI.samsung";
         case GameDistribution::ChinaServer: return "com.yuanshen.site";
         case GameDistribution::Bilibili:    return "com.miHoYo.ys.bilibili";
     }
@@ -24,9 +24,13 @@ std::string ShizukuLayerInjector::get_package_name(GameDistribution dist) noexce
 }
 
 bool ShizukuLayerInjector::is_shizuku_available() const noexcept {
-    // Check if Shizuku shell service or ADB environment is responsive
-    int res = system("shizuku status 2>/dev/null || which adb >/dev/null");
-    return (res == 0);
+    // Check if system settings command or ADB / root / shizuku is responsive
+    if (system("settings get global enable_gpu_debug_layers >/dev/null 2>&1") == 0) return true;
+    if (system("which su >/dev/null 2>&1") == 0) return true;
+    if (system("which shizuku >/dev/null 2>&1") == 0) return true;
+    if (system("which rish >/dev/null 2>&1") == 0) return true;
+    if (system("which adb >/dev/null 2>&1") == 0) return true;
+    return false;
 }
 
 bool ShizukuLayerInjector::enable_layer(GameDistribution dist, const std::string& layer_so) noexcept {
@@ -38,10 +42,15 @@ bool ShizukuLayerInjector::enable_layer(GameDistribution dist, const std::string
     std::string cmd3 = "settings put global gpu_debug_layer_app com.gimi.launcher";
     std::string cmd4 = "settings put global gpu_debug_layers " + layer_so;
 
-    system(cmd1.c_str());
-    system(cmd2.c_str());
-    system(cmd3.c_str());
-    system(cmd4.c_str());
+    int r1 = system(cmd1.c_str());
+    int r2 = system(cmd2.c_str());
+    int r3 = system(cmd3.c_str());
+    int r4 = system(cmd4.c_str());
+
+    if (r1 != 0 || r2 != 0) {
+        std::string su_cmd = "su -c \"" + cmd1 + " && " + cmd2 + " && " + cmd3 + " && " + cmd4 + "\" 2>/dev/null";
+        system(su_cmd.c_str());
+    }
 
     m_layer_enabled = true;
     m_current_dist = dist;

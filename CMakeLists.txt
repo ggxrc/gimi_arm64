@@ -67,6 +67,7 @@ set(GIMI_SOURCES
     # Phase 05: Android Launcher App & Injector Manager
     src/launcher/mod_manager_service.cpp
     src/launcher/shizuku_layer_injector.cpp
+    src/launcher/gimi_native_bridge.cpp
     # inih C library (third_party)
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
 )

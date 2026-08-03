@@ -54,7 +54,7 @@ void test_shizuku_layer_injector() {
     std::cout << "[TEST] Running ShizukuLayerInjector package mapping tests..." << std::endl;
 
     assert(gimi::ShizukuLayerInjector::get_package_name(gimi::GameDistribution::PlayStore) == "com.miHoYo.GenshinImpact");
-    assert(gimi::ShizukuLayerInjector::get_package_name(gimi::GameDistribution::GalaxyStore) == "com.miHoYo.GenshinImpact.samsung");
+    assert(gimi::ShizukuLayerInjector::get_package_name(gimi::GameDistribution::GalaxyStore) == "com.miHoYo.GI.samsung");
     assert(gimi::ShizukuLayerInjector::get_package_name(gimi::GameDistribution::ChinaServer) == "com.yuanshen.site");
     assert(gimi::ShizukuLayerInjector::get_package_name(gimi::GameDistribution::Bilibili) == "com.miHoYo.ys.bilibili");
 

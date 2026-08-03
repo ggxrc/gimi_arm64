@@ -173,6 +173,7 @@ if [ "$AAPT_CMD" = "aapt2" ]; then
     aapt2 compile --dir android/app/src/main/res -o build/compiled_res.zip 2>/dev/null || true
     if [ -f "$ANDROID_JAR" ]; then
         aapt2 link -o "$RESOURCE_AP_" -I "$ANDROID_JAR" \
+            --min-sdk-version 26 --target-sdk-version 34 \
             --manifest android/app/src/main/AndroidManifest.xml \
             build/compiled_res.zip --java build/gen --auto-add-overlay 2>/dev/null || true
     fi
@@ -187,12 +188,13 @@ fi
 JAVA_FILES=$(find android/app/src/main/java build/gen -name "*.java" 2>/dev/null)
 if command -v javac >/dev/null 2>&1 && [ -f "$ANDROID_JAR" ] && [ -n "$JAVA_FILES" ]; then
     echo -e "  [✔] Compiling Java source files with javac..."
-    javac -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES 2>/dev/null || true
+    javac --release 8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES 2>/dev/null || javac -source 1.8 -target 1.8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES 2>/dev/null || true
 fi
 
 # Convert Java class files to Dalvik bytecode (classes.dex)
 CLASS_FILES=$(find build/obj -name "*.class" 2>/dev/null)
 if [ -n "$CLASS_FILES" ]; then
+    mkdir -p build/dex
     if [ "$D8_CMD" = "d8" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using d8..."
         d8 --lib "$ANDROID_JAR" --output build/dex $CLASS_FILES 2>/dev/null || true
@@ -205,6 +207,7 @@ fi
 # Ensure a fallback empty classes.dex if d8 didn't run or classes were empty
 if [ ! -f "build/dex/classes.dex" ]; then
     echo -e "  [ℹ️] Creating minimal classes.dex placeholder..."
+    mkdir -p build/dex
     touch build/dex/classes.dex
 fi
 
