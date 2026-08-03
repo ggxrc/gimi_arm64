@@ -12,7 +12,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
 - [x] **Phase 5: Android Launcher App (GUI) & Manager de Injeção** - Interface Android nativa para gerenciar mods e ativar a Vulkan Layer sem root
 - [x] **Phase 6: Compilação & Testes de Integração do Launcher App** - Build Termux/NDK do APK e testes de integração do Launcher
-- [ ] **Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)** - Interface Android nativa em Jetpack Compose Material 3 com NavGraph de 3 telas e JNI Native Bridge
+- [x] **Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)** - Interface Android nativa em Jetpack Compose Material 3 com NavGraph de 3 telas e JNI Native Bridge
 - [ ] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 
 ## Phase Details
@@ -114,11 +114,11 @@ Plans:
   1. App compilado em APK instalável com 3 telas navegáveis via NavGraph (Dashboard, Mod Manager, Settings).
   2. Lista visual de mods com cards, busca, toggles ativado/desativado integrados via JNI Native Bridge (`GimiNativeBridge`).
   3. Painel de controle de status da Vulkan Layer e ativação via Shizuku aguardando interação do usuário.
-**Plans:** TBD
+**Plans:** Complete
 
 Plans:
-- [ ] 07-01: Estrutura Jetpack Compose (Material 3), Navigation NavGraph e JNI Native Bridge
-- [ ] 07-02: Componentes Visuais do Mod Manager, Dashboard e Painel de Injeção Vulkan
+- [x] 07-01: JNI Native Bridge e Estrutura Navigation Compose (NavGraph)
+- [x] 07-02: Interface Visual Compose (Dashboard, Mod Manager, Settings) & APK Integration
 
 ### Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente
 **Goal:** Implementar o suporte a OpenGL ES (GLES 3.x) e realizar o teste E2E completo com um mod real do 3dmigoto.
@@ -147,5 +147,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Pipeline de Texturas Mobile | 2/2 | Complete | 2026-08-03 |
 | 5. Android Launcher App (GUI) | 2/2 | Complete | 2026-08-03 |
 | 6. Compilação & Testes do Launcher | 2/2 | Complete | 2026-08-03 |
-| 7. Android Launcher GUI (Jetpack Compose) | 0/2 | Planned | - |
+| 7. Android Launcher GUI (Jetpack Compose) | 2/2 | Complete | 2026-08-03 |
 | 8. Suporte OpenGL ES & Teste com Mod Real | 0/2 | Planned | - |
