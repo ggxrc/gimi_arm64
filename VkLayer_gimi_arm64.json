@@ -1,0 +1,22 @@
+{
+    "file_format_version": "1.0.0",
+    "layer": {
+        "name": "VK_LAYER_GIMI_arm64",
+        "type": "GLOBAL",
+        "library_path": "libgimi_arm64.so",
+        "api_version": "1.3.0",
+        "implementation_version": "1",
+        "description": "gimi_arm64 — Non-destructive Genshin Impact Model Importer for Android ARM64",
+        "functions": {
+            "vkGetInstanceProcAddr": "vkGetInstanceProcAddr",
+            "vkGetDeviceProcAddr": "vkGetDeviceProcAddr",
+            "vkNegotiateLoaderLayerInterfaceVersion": "vkNegotiateLoaderLayerInterfaceVersion"
+        },
+        "instance_extensions": [],
+        "device_extensions": [],
+        "enable_environment": null,
+        "disable_environment": {
+            "GIMI_DISABLE": "1"
+        }
+    }
+}

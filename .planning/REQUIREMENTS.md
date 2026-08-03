@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Interception & Engine Infrastructure
 
-- [ ] **HOOK-01**: Configurar compilação nativa Android NDK C++20 direcionada para a arquitetura `arm64-v8a`
-- [ ] **HOOK-02**: Implementar estrutura Vulkan Layer / EGL Dispatch Table para interceptar entrypoints gráficos nativos (`vkGetInstanceProcAddr`, `vkGetDeviceProcAddr`)
-- [ ] **HOOK-03**: Interceptar chamadas de renderização de forma puramente em memória (sem modificar arquivos de jogo ou APK no disco)
+- [x] **HOOK-01**: Configurar compilação nativa Android NDK C++20 direcionada para a arquitetura `arm64-v8a`
+- [x] **HOOK-02**: Implementar estrutura Vulkan Layer / EGL Dispatch Table para interceptar entrypoints gráficos nativos (`vkGetInstanceProcAddr`, `vkGetDeviceProcAddr`)
+- [x] **HOOK-03**: Interceptar chamadas de renderização de forma puramente em memória (sem modificar arquivos de jogo ou APK no disco)
 
 ### Config Parsing & Hashes
 
@@ -61,9 +61,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOOK-01 | Phase 1 | Pending |
-| HOOK-02 | Phase 1 | Pending |
-| HOOK-03 | Phase 1 | Pending |
+| HOOK-01 | Phase 1 | Completed |
+| HOOK-02 | Phase 1 | Completed |
+| HOOK-03 | Phase 1 | Completed |
 | CFG-01 | Phase 2 | Pending |
 | CFG-02 | Phase 2 | Pending |
 | CFG-03 | Phase 2 | Pending |

@@ -6,7 +6,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 
 ## Phases
 
-- [ ] **Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa** - Setup NDK C++20 e camada Vulkan Layer não-destrutiva
+- [x] **Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa** - Setup NDK C++20 e camada Vulkan Layer não-destrutiva
 - [ ] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
 - [ ] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [ ] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
@@ -22,11 +22,11 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
   1. Compilação NDK C++20 gera biblioteca nativa limpa para arquitetura `arm64-v8a`.
   2. Vulkan Layer intercepta entrypoints `vkGetInstanceProcAddr` e `vkGetDeviceProcAddr` sem provocar crashes.
   3. Interceptação ocorre estritamente em memória sem modificar APK ou arquivos no disco.
-**Plans:** TBD
+**Plans:** Complete
 
 Plans:
-- [ ] 01-01: Setup do projeto NDK, CMake e estrutura base C++20
-- [ ] 01-02: Implementação da camada de interceptação Vulkan Layer / EGL Dispatch Table
+- [x] 01-01: Setup do projeto NDK, CMake e estrutura base C++20
+- [x] 01-02: Implementação da camada de interceptação Vulkan Layer / EGL Dispatch Table
 
 ### Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes
 **Goal:** Implementar o parser de arquivos `.ini` do 3dmigoto (Orfix, Txfix e Overrides) e o sistema de hashing de recursos em tempo real.
@@ -36,7 +36,7 @@ Plans:
 **Success Criteria**:
   1. Parser C++ interpreta seções `[TextureOverride]`, `[ShaderOverride]`, `Orfix.ini` e `Txfix.ini`.
   2. Sistema calcula e armazena hashes de Vertex Buffers, Index Buffers e Texturas durante o render sem travar o jogo.
-**Plans:** TBD
+**Plans:** Created
 
 Plans:
 - [ ] 02-01: Parser de configurações `.ini` C++ e estruturas de dados de mod
@@ -79,7 +79,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine de Interceptação Vulkan ARM64 | 0/2 | Not started | - |
+| 1. Engine de Interceptação Vulkan ARM64 | 2/2 | Complete | 2026-08-03 |
 | 2. Parser 3dmigoto & Hashes | 0/2 | Not started | - |
 | 3. Substituição de Modelos & Shader Fixes | 0/3 | Not started | - |
 | 4. Pipeline de Texturas Mobile | 0/2 | Not started | - |
