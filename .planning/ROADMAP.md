@@ -7,7 +7,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 ## Phases
 
 - [x] **Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa** - Setup NDK C++20 e camada Vulkan Layer não-destrutiva
-- [ ] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
+- [x] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
 - [ ] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [ ] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
 
@@ -36,11 +36,11 @@ Plans:
 **Success Criteria**:
   1. Parser C++ interpreta seções `[TextureOverride]`, `[ShaderOverride]`, `Orfix.ini` e `Txfix.ini`.
   2. Sistema calcula e armazena hashes de Vertex Buffers, Index Buffers e Texturas durante o render sem travar o jogo.
-**Plans:** Created
+**Plans:** Complete
 
 Plans:
-- [ ] 02-01: Parser de configurações `.ini` C++ e estruturas de dados de mod
-- [ ] 02-02: Engine de cálculo e cache de hashes de recursos gráficos em tempo real
+- [x] 02-01: Parser de configurações `.ini` C++ e estruturas de dados de mod
+- [x] 02-02: Engine de cálculo e cache de hashes de recursos gráficos em tempo real
 
 ### Phase 3: Substituição de Modelos & Shader Fixes
 **Goal:** Permitir a substituição de modelos 3D originais por meshes customizados e aplicação de correções de shader.
@@ -80,6 +80,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine de Interceptação Vulkan ARM64 | 2/2 | Complete | 2026-08-03 |
-| 2. Parser 3dmigoto & Hashes | 0/2 | Not started | - |
+| 2. Parser 3dmigoto & Hashes | 2/2 | Complete | 2026-08-03 |
 | 3. Substituição de Modelos & Shader Fixes | 0/3 | Not started | - |
 | 4. Pipeline de Texturas Mobile | 0/2 | Not started | - |

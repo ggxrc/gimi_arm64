@@ -15,9 +15,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Config Parsing & Hashes
 
-- [ ] **CFG-01**: Desenvolver parser C++ de arquivos `.ini` do 3dmigoto capaz de ler seções `[TextureOverride]`, `[ShaderOverride]`, `[Resource]` e `[Constants]`
-- [ ] **CFG-02**: Implementar sistema de geração e cache de hash para Vertex Buffers, Index Buffers e Texturas em tempo de execução
-- [ ] **CFG-03**: Suportar carregamento de regras globais e condicionais presentes em arquivos de mod padrão
+- [x] **CFG-01**: Desenvolver parser C++ de arquivos `.ini` do 3dmigoto capaz de ler seções `[TextureOverride]`, `[ShaderOverride]`, `[Resource]` e `[Constants]`
+- [x] **CFG-02**: Implementar sistema de geração e cache de hash para Vertex Buffers, Index Buffers e Texturas em tempo de execução
+- [x] **CFG-03**: Suportar carregamento de regras globais e condicionais presentes em arquivos de mod padrão
 
 ### Mesh & Model Overrides
 
@@ -64,9 +64,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HOOK-01 | Phase 1 | Completed |
 | HOOK-02 | Phase 1 | Completed |
 | HOOK-03 | Phase 1 | Completed |
-| CFG-01 | Phase 2 | Pending |
-| CFG-02 | Phase 2 | Pending |
-| CFG-03 | Phase 2 | Pending |
+| CFG-01 | Phase 2 | Completed |
+| CFG-02 | Phase 2 | Completed |
+| CFG-03 | Phase 2 | Completed |
 | MESH-01 | Phase 3 | Pending |
 | MESH-02 | Phase 3 | Pending |
 | FIX-01 | Phase 3 | Pending |
