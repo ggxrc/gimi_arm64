@@ -42,6 +42,10 @@ set(GIMI_SOURCES
     # Phase 03-03: Shader Fix Engine
     src/shaders/spirv_hasher.cpp
     src/shaders/shader_fix_engine.cpp
+    # Phase 04: Texture Pipeline
+    src/textures/image_state_tracker.cpp
+    src/textures/texture_loader.cpp
+    src/textures/texture_swapper.cpp
     # inih C library (third_party)
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
 )

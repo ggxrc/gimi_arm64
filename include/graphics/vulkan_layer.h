@@ -44,7 +44,11 @@ struct DeviceDispatchTable {
     // Phase 3: draw-call interception & shader fixes
     PFN_vkCmdBindIndexBuffer         CmdBindIndexBuffer        = nullptr;
     PFN_vkCreateShaderModule         CreateShaderModule        = nullptr;
-    // Extended in Phase 4 (texture override).
+    // Phase 4: texture pipeline
+    PFN_vkCreateImageView            CreateImageView           = nullptr;
+    PFN_vkDestroyImageView           DestroyImageView          = nullptr;
+    PFN_vkCmdCopyBufferToImage       CmdCopyBufferToImage      = nullptr;
+    PFN_vkUpdateDescriptorSets       UpdateDescriptorSets      = nullptr;
 };
 
 // ─── Dispatch Table Registry ──────────────────────────────────────────────────

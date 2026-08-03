@@ -32,9 +32,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Texture Pipeline
 
-- [ ] **TEX-01**: Interceptar descritores e uploads de texturas na memória VRAM do Vulkan
-- [ ] **TEX-02**: Suportar carregamento de texturas nos formatos móveis nativos (ASTC / ETC2 / RGBA8)
-- [ ] **TEX-03**: Substituir bind de texturas originais do jogo pelas texturas do mod quando os hashes corresponderem
+- [x] **TEX-01**: Interceptar descritores e uploads de texturas na memória VRAM do Vulkan
+- [x] **TEX-02**: Suportar carregamento de texturas nos formatos móveis nativos (ASTC / ETC2 / RGBA8)
+- [x] **TEX-03**: Substituir bind de texturas originais do jogo pelas texturas do mod quando os hashes corresponderem
 
 ## v2 Requirements
 
@@ -72,9 +72,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-01 | Phase 3 | Completed |
 | FIX-02 | Phase 3 | Completed |
 | FIX-03 | Phase 3 | Completed |
-| TEX-01 | Phase 4 | Pending |
-| TEX-02 | Phase 4 | Pending |
-| TEX-03 | Phase 4 | Pending |
+| TEX-01 | Phase 4 | Completed |
+| TEX-02 | Phase 4 | Completed |
+| TEX-03 | Phase 4 | Completed |
 
 **Coverage:**
 - v1 requirements: 14 total
