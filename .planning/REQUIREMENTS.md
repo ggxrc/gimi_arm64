@@ -61,26 +61,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOOK-01 | TBD | Pending |
-| HOOK-02 | TBD | Pending |
-| HOOK-03 | TBD | Pending |
-| CFG-01 | TBD | Pending |
-| CFG-02 | TBD | Pending |
-| CFG-03 | TBD | Pending |
-| MESH-01 | TBD | Pending |
-| MESH-02 | TBD | Pending |
-| FIX-01 | TBD | Pending |
-| FIX-02 | TBD | Pending |
-| FIX-03 | TBD | Pending |
-| TEX-01 | TBD | Pending |
-| TEX-02 | TBD | Pending |
-| TEX-03 | TBD | Pending |
+| HOOK-01 | Phase 1 | Pending |
+| HOOK-02 | Phase 1 | Pending |
+| HOOK-03 | Phase 1 | Pending |
+| CFG-01 | Phase 2 | Pending |
+| CFG-02 | Phase 2 | Pending |
+| CFG-03 | Phase 2 | Pending |
+| MESH-01 | Phase 3 | Pending |
+| MESH-02 | Phase 3 | Pending |
+| FIX-01 | Phase 3 | Pending |
+| FIX-02 | Phase 3 | Pending |
+| FIX-03 | Phase 3 | Pending |
+| TEX-01 | Phase 4 | Pending |
+| TEX-02 | Phase 4 | Pending |
+| TEX-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14 ⚠️
+- Mapped to phases: 14
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-03*
-*Last updated: 2026-08-03 after initial definition*
+*Last updated: 2026-08-03 after roadmap creation*
+

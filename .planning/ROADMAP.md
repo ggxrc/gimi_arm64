@@ -1,0 +1,85 @@
+# Roadmap: gimi_arm64
+
+## Overview
+
+O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos Android (ARM64) de forma não-destrutiva. O roteiro é dividido em 4 fases MVP focadas na infraestrutura Vulkan NDK, parser de configs `.ini`, substituição de modelos 3D/shaders e pipeline de texturas mobile.
+
+## Phases
+
+- [ ] **Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa** - Setup NDK C++20 e camada Vulkan Layer não-destrutiva
+- [ ] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
+- [ ] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
+- [ ] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
+
+## Phase Details
+
+### Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa
+**Goal:** Estabelecer o ambiente de compilação NDK C++20 e a camada não-destrutiva de interceptação Vulkan no Android (ARM64).
+**Mode:** mvp
+**Depends on:** Nothing (primeira fase)
+**Requirements:** [HOOK-01, HOOK-02, HOOK-03]
+**Success Criteria**:
+  1. Compilação NDK C++20 gera biblioteca nativa limpa para arquitetura `arm64-v8a`.
+  2. Vulkan Layer intercepta entrypoints `vkGetInstanceProcAddr` e `vkGetDeviceProcAddr` sem provocar crashes.
+  3. Interceptação ocorre estritamente em memória sem modificar APK ou arquivos no disco.
+**Plans:** TBD
+
+Plans:
+- [ ] 01-01: Setup do projeto NDK, CMake e estrutura base C++20
+- [ ] 01-02: Implementação da camada de interceptação Vulkan Layer / EGL Dispatch Table
+
+### Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes
+**Goal:** Implementar o parser de arquivos `.ini` do 3dmigoto (Orfix, Txfix e Overrides) e o sistema de hashing de recursos em tempo real.
+**Mode:** mvp
+**Depends on:** Phase 1
+**Requirements:** [CFG-01, CFG-02, CFG-03]
+**Success Criteria**:
+  1. Parser C++ interpreta seções `[TextureOverride]`, `[ShaderOverride]`, `Orfix.ini` e `Txfix.ini`.
+  2. Sistema calcula e armazena hashes de Vertex Buffers, Index Buffers e Texturas durante o render sem travar o jogo.
+**Plans:** TBD
+
+Plans:
+- [ ] 02-01: Parser de configurações `.ini` C++ e estruturas de dados de mod
+- [ ] 02-02: Engine de cálculo e cache de hashes de recursos gráficos em tempo real
+
+### Phase 3: Substituição de Modelos & Shader Fixes
+**Goal:** Permitir a substituição de modelos 3D originais por meshes customizados e aplicação de correções de shader.
+**Mode:** mvp
+**Depends on:** Phase 2
+**Requirements:** [MESH-01, MESH-02, FIX-01, FIX-02, FIX-03]
+**Success Criteria**:
+  1. Interceptação de `vkCmdDrawIndexed` substitui Vertex Buffers originais por buffers de modelos modificados.
+  2. Remapeamento de stride/atributos entre layouts de DX11 e Vulkan ocorre sem corrupção gráfica.
+  3. Regras do `Orfix.ini` e `Txfix.ini` são aplicadas aos shaders/buffers corrigindo sombras e iluminação.
+**Plans:** TBD
+
+Plans:
+- [ ] 03-01: Interceptação de Draw Calls (`vkCmdDrawIndexed`) e troca de Vertex/Index Buffers
+- [ ] 03-02: Adaptador de layout de atributos de vértices (DX11 para Vulkan)
+- [ ] 03-03: Executor de correções de shader e iluminação (Orfix/Txfix)
+
+### Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis
+**Goal:** Interceptação e substituição de texturas modificadas em formatos móveis (ASTC/ETC2).
+**Mode:** mvp
+**Depends on:** Phase 3
+**Requirements:** [TEX-01, TEX-02, TEX-03]
+**Success Criteria**:
+  1. Interceptação de uploads e descritores de textura no Vulkan.
+  2. Carregamento e substituição transparente de texturas modded em formatos móveis (ASTC/ETC2/RGBA8) ao detectar correspondência de hashes.
+**Plans:** TBD
+
+Plans:
+- [ ] 04-01: Interceptação de Descriptor Sets e Uploads de Textura Vulkan
+- [ ] 04-02: Carregador e substituidor de texturas nos formatos ASTC/ETC2/RGBA8
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 1 → 2 → 3 → 4
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 1. Engine de Interceptação Vulkan ARM64 | 0/2 | Not started | - |
+| 2. Parser 3dmigoto & Hashes | 0/2 | Not started | - |
+| 3. Substituição de Modelos & Shader Fixes | 0/3 | Not started | - |
+| 4. Pipeline de Texturas Mobile | 0/2 | Not started | - |
