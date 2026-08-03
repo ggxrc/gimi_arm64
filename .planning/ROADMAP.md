@@ -11,6 +11,8 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [x] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
 - [x] **Phase 5: Android Launcher App (GUI) & Manager de Injeção** - Interface Android nativa para gerenciar mods e ativar a Vulkan Layer sem root
+- [x] **Phase 6: Compilação & Testes de Integração do Launcher App** - Build Gradle/NDK do APK e testes de integração do Launcher
+- [ ] **Phase 7: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 
 ## Phase Details
 
@@ -88,10 +90,38 @@ Plans:
 - [x] 05-01: Interface Android (GUI) e Gerenciador de Arquivos de Mods
 - [x] 05-02: Módulo de Injeção de Vulkan Layer sem Root (Shizuku API & ADB Manager)
 
+### Phase 6: Compilação & Testes de Integração do Launcher App
+**Goal:** Configurar o build do APK Android (Gradle + CMake) e testar a integração do Launcher com o motor nativo.
+**Mode:** mvp
+**Depends on:** Phase 5
+**Requirements:** [BUILD-01, TEST-01]
+**Success Criteria**:
+  1. Gradle compila o C++20 nativo em `libgimi_arm64.so` e empacota o APK `GIMI-Launcher.apk`.
+  2. Suíte de testes valida escaneamento de mods e chamadas do Shizuku.
+**Plans:** Complete
+
+Plans:
+- [x] 06-01: Integração de Build Gradle NDK CMake e empacotamento do APK
+- [x] 06-02: Testes de Integração do Launcher e serviço de injeção
+
+### Phase 7: Suporte a OpenGL ES & Testes E2E com Mod Existente
+**Goal:** Implementar o suporte a OpenGL ES (GLES 3.x) e realizar o teste E2E completo com um mod real do 3dmigoto.
+**Mode:** mvp
+**Depends on:** Phase 6
+**Requirements:** [GLES-01, MOD-TEST-01]
+**Success Criteria**:
+  1. Camada de interceptação OpenGL ES (GLES/EGL) intercepta draw calls e texturas.
+  2. Mod real do 3dmigoto (arquivos `.ini`, `.vb`, `.ib` e texturas) é parsed, hash e substituído no pipeline.
+**Plans:** TBD
+
+Plans:
+- [ ] 07-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
+- [ ] 07-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -100,3 +130,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 3. Substituição de Modelos & Shader Fixes | 3/3 | Complete | 2026-08-03 |
 | 4. Pipeline de Texturas Mobile | 2/2 | Complete | 2026-08-03 |
 | 5. Android Launcher App (GUI) | 2/2 | Complete | 2026-08-03 |
+| 6. Compilação & Testes do Launcher | 2/2 | Complete | 2026-08-03 |
+| 7. Suporte OpenGL ES & Teste com Mod Real | 0/2 | Planned | - |

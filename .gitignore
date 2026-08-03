@@ -1,0 +1,39 @@
+# Build directories
+build/
+bin/
+out/
+.cxx/
+
+# Binary & Compiled files
+*.so
+*.o
+*.a
+*.obj
+*.exe
+*.dll
+*.dylib
+
+# Android & Gradle
+.gradle/
+**/build/
+android/local.properties
+android/.gradle/
+*.apk
+*.aar
+*.keystore
+
+# IDEs and Editors
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary files
+*.log
+/tmp/

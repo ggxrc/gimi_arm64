@@ -53,6 +53,17 @@ set(GIMI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
 )
 
+# ─── Executable: Launcher Integration Tests ──────────────────────────────────
+add_executable(test_launcher_integration
+    tests/test_launcher_integration.cpp
+    src/launcher/mod_manager_service.cpp
+    src/launcher/shizuku_layer_injector.cpp
+    src/utils/logger.cpp
+)
+target_include_directories(test_launcher_integration PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 # ─── Shared Library Target ────────────────────────────────────────────────────
 add_library(gimi_arm64 SHARED ${GIMI_SOURCES})
 
