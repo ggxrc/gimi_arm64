@@ -13,6 +13,7 @@
 
 #include <vulkan/vulkan.h>
 #include <cstdint>
+#include <unordered_map>
 
 namespace gimi {
 

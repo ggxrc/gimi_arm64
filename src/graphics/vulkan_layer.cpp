@@ -104,7 +104,7 @@ gimi_vkCreateInstance(
             const_cast<void*>(reinterpret_cast<const void*>(pCreateInfo->pNext)));
     while (chain && !(chain->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO &&
                       chain->function == VK_LAYER_LINK_INFO)) {
-        chain = reinterpret_cast<VkLayerInstanceCreateInfo*>(chain->pNext);
+        chain = reinterpret_cast<VkLayerInstanceCreateInfo*>(const_cast<void*>(chain->pNext));
     }
     if (chain) chain->u.pLayerInfo = chain->u.pLayerInfo->pNext;
 

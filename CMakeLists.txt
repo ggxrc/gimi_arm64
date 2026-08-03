@@ -14,9 +14,27 @@ add_compile_options(
     -Wextra
     -Wpedantic
     -fvisibility=hidden
-    -fno-exceptions     # Reduce binary size on mobile; use error codes instead
     -fno-rtti
 )
+
+# ─── NDK / Android System Libraries ──────────────────────────────────────────
+if(EXISTS "/system/lib64/liblog.so")
+    set(log-lib "/system/lib64/liblog.so")
+else()
+    set(log-lib "log")
+endif()
+
+if(EXISTS "/system/lib64/libandroid.so")
+    set(android-lib "/system/lib64/libandroid.so")
+else()
+    set(android-lib "android")
+endif()
+
+if(EXISTS "/system/lib64/libvulkan.so")
+    set(vulkan-lib "/system/lib64/libvulkan.so")
+else()
+    set(vulkan-lib "vulkan")
+endif()
 
 # ─── Source Files ─────────────────────────────────────────────────────────────
 set(GIMI_SOURCES
@@ -62,23 +80,28 @@ add_executable(test_launcher_integration
 )
 target_include_directories(test_launcher_integration PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+target_link_libraries(test_launcher_integration PRIVATE
+    ${log-lib}
 )
 
 # ─── Shared Library Target ────────────────────────────────────────────────────
 add_library(gimi_arm64 SHARED ${GIMI_SOURCES})
 
 # ─── Include Directories ──────────────────────────────────────────────────────────
+include_directories(SYSTEM
+    /usr/include
+    /data/data/com.termux/files/usr/include
+)
+
 target_include_directories(gimi_arm64
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party            # Vulkan / EGL / KHR headers
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih      # inih (Phase 02-01)
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/xxhash    # xxHash (Phase 02-02)
 )
-
-# ─── NDK System Libraries ─────────────────────────────────────────────────────
-find_library(log-lib log)
-find_library(android-lib android)
-find_library(vulkan-lib vulkan)
 
 target_link_libraries(gimi_arm64
     PRIVATE

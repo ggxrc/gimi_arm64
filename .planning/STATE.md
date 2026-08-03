@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: milestone
 current_phase: 6
-current_phase_name: Compilação & Testes de Integração do Launcher App
+current_phase_name: Compilação de APK e Testes em Ambiente Linux / Termux (ARM64)
 status: shipped
 stopped_at: Phase 6 verified (06-UAT.md passed)
-last_updated: "2026-08-03T13:13:00.000Z"
+last_updated: "2026-08-03T18:04:00.000Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 6 verified and ready to ship
+last_activity_desc: Phase 6 verified and UAT signed off (Termux APK build pipeline & tests pass)
 progress:
   total_phases: 7
   completed_phases: 6
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-08-03)
 
 ## Current Position
 
-Phase: 6 of 7 (Compilação & Testes de Integração do Launcher App)
+Phase: 6 of 7 (Compilação de APK e Testes em Ambiente Linux / Termux)
 Plan: 2 of 2 in current phase (COMPLETE)
 Status: Phase 6 shipped (06-UAT.md passed)
-Last activity: 2026-08-03 — Phase 6 verified and UAT signed off
+Last activity: 2026-08-03 — Phase 6 verified and UAT signed off (Termux build pipeline & tests clean)
 
 Progress: [█████████░] 86%
 
