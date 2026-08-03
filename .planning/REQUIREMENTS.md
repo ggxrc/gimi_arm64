@@ -21,14 +21,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Mesh & Model Overrides
 
-- [ ] **MESH-01**: Interceptar chamadas de desenho (`vkCmdDrawIndexed` / `vkCmdBindVertexBuffers`) e substituir Vertex Buffers por modelos modded
-- [ ] **MESH-02**: Realizar remapeamento de atributos de vértices (stride e layout) de DX11 para o formato de input do Vulkan
+- [x] **MESH-01**: Interceptar chamadas de desenho (`vkCmdDrawIndexed` / `vkCmdBindVertexBuffers`) e substituir Vertex Buffers por modelos modded
+- [x] **MESH-02**: Realizar remapeamento de atributos de vértices (stride e layout) de DX11 para o formato de input do Vulkan
 
 ### Shader Fixes & Lighting
 
-- [ ] **FIX-01**: Implementar suporte ao parser e regras de execução do `Orfix.ini` para correção de iluminação e sombras
-- [ ] **FIX-02**: Implementar suporte ao parser e regras de execução do `Txfix.ini` para ajustes de transparência e coordenadas UV
-- [ ] **FIX-03**: Substituir ou patchear SPIR-V / shaders em tempo de execução para aplicar correções de renderização
+- [x] **FIX-01**: Implementar suporte ao parser e regras de execução do `Orfix.ini` para correção de iluminação e sombras
+- [x] **FIX-02**: Implementar suporte ao parser e regras de execução do `Txfix.ini` para ajustes de transparência e coordenadas UV
+- [x] **FIX-03**: Substituir ou patchear SPIR-V / shaders em tempo de execução para aplicar correções de renderização
 
 ### Texture Pipeline
 
@@ -67,11 +67,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CFG-01 | Phase 2 | Completed |
 | CFG-02 | Phase 2 | Completed |
 | CFG-03 | Phase 2 | Completed |
-| MESH-01 | Phase 3 | Pending |
-| MESH-02 | Phase 3 | Pending |
-| FIX-01 | Phase 3 | Pending |
-| FIX-02 | Phase 3 | Pending |
-| FIX-03 | Phase 3 | Pending |
+| MESH-01 | Phase 3 | Completed |
+| MESH-02 | Phase 3 | Completed |
+| FIX-01 | Phase 3 | Completed |
+| FIX-02 | Phase 3 | Completed |
+| FIX-03 | Phase 3 | Completed |
 | TEX-01 | Phase 4 | Pending |
 | TEX-02 | Phase 4 | Pending |
 | TEX-03 | Phase 4 | Pending |

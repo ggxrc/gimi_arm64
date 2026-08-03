@@ -41,7 +41,10 @@ struct DeviceDispatchTable {
     // Phase 2: hash eviction hooks
     PFN_vkDestroyBuffer              DestroyBuffer             = nullptr;
     PFN_vkDestroyImage               DestroyImage              = nullptr;
-    // Extended in Phase 3 (mesh override) and Phase 4 (texture override).
+    // Phase 3: draw-call interception & shader fixes
+    PFN_vkCmdBindIndexBuffer         CmdBindIndexBuffer        = nullptr;
+    PFN_vkCreateShaderModule         CreateShaderModule        = nullptr;
+    // Extended in Phase 4 (texture override).
 };
 
 // ─── Dispatch Table Registry ──────────────────────────────────────────────────

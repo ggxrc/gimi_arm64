@@ -33,6 +33,15 @@ set(GIMI_SOURCES
     # Phase 02-02: Hash Engine
     src/hash/hash_registry.cpp
     src/hash/resource_hash_engine.cpp
+    # Phase 03-01: Draw Call Interception & Mesh Swapper
+    src/graphics/command_buffer_state.cpp
+    src/mesh/mesh_swapper.cpp
+    # Phase 03-02: Vertex Layout Adapter
+    src/mesh/dxgi_vulkan_format.cpp
+    src/mesh/vertex_layout_adapter.cpp
+    # Phase 03-03: Shader Fix Engine
+    src/shaders/spirv_hasher.cpp
+    src/shaders/shader_fix_engine.cpp
     # inih C library (third_party)
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
 )

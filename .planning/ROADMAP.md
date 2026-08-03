@@ -8,7 +8,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 
 - [x] **Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa** - Setup NDK C++20 e camada Vulkan Layer não-destrutiva
 - [x] **Phase 2: Parser de Configurações 3dmigoto & Gestão de Hashes** - Parser .ini (Orfix/Txfix) e cálculo de hashes em tempo real
-- [ ] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
+- [x] **Phase 3: Substituição de Modelos & Shader Fixes** - Override de Vertex/Index Buffers e aplicação de regras do Orfix/Txfix
 - [ ] **Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis** - Substituição de texturas em memória para ASTC/ETC2
 
 ## Phase Details
@@ -51,12 +51,12 @@ Plans:
   1. Interceptação de `vkCmdDrawIndexed` substitui Vertex Buffers originais por buffers de modelos modificados.
   2. Remapeamento de stride/atributos entre layouts de DX11 e Vulkan ocorre sem corrupção gráfica.
   3. Regras do `Orfix.ini` e `Txfix.ini` são aplicadas aos shaders/buffers corrigindo sombras e iluminação.
-**Plans:** TBD
+**Plans:** Complete
 
 Plans:
-- [ ] 03-01: Interceptação de Draw Calls (`vkCmdDrawIndexed`) e troca de Vertex/Index Buffers
-- [ ] 03-02: Adaptador de layout de atributos de vértices (DX11 para Vulkan)
-- [ ] 03-03: Executor de correções de shader e iluminação (Orfix/Txfix)
+- [x] 03-01: Interceptação de Draw Calls (`vkCmdDrawIndexed`) e troca de Vertex/Index Buffers
+- [x] 03-02: Adaptador de layout de atributos de vértices (DX11 para Vulkan)
+- [x] 03-03: Executor de correções de shader e iluminação (Orfix/Txfix)
 
 ### Phase 4: Pipeline de Texturas & Compatibilidade de Formatos Móveis
 **Goal:** Interceptação e substituição de texturas modificadas em formatos móveis (ASTC/ETC2).
@@ -81,5 +81,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Engine de Interceptação Vulkan ARM64 | 2/2 | Complete | 2026-08-03 |
 | 2. Parser 3dmigoto & Hashes | 2/2 | Complete | 2026-08-03 |
-| 3. Substituição de Modelos & Shader Fixes | 0/3 | Not started | - |
+| 3. Substituição de Modelos & Shader Fixes | 3/3 | Complete | 2026-08-03 |
 | 4. Pipeline de Texturas Mobile | 0/2 | Not started | - |
