@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 1
-current_phase_name: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa
+current_phase: 2
+current_phase_name: Parser de Configurações 3dmigoto & Gestão de Hashes
 status: shipped
-stopped_at: Phase 1 shipped & verified
-last_updated: "2026-08-03T12:06:00.000Z"
+stopped_at: Phase 2 shipped & verified
+last_updated: "2026-08-03T12:14:48.000Z"
 last_activity: 2026-08-03
-last_activity_desc: Phase 1 shipped (commit 869175a) — Vulkan Layer / EGL Dispatch Engine & NDK C++20 Infrastructure
+last_activity_desc: Phase 2 shipped (commit 57988e7) — 3dmigoto .ini Parser & Resource Hash Engine
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
   completed_plans: 4
 ---
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-03)
 
 **Core value:** Interceptar e substituir recursos gráficos (modelos, texturas e shaders) de forma não-destrutiva via camada de gráficos Vulkan/GLES em ARM64 Android, mantendo compatibilidade com os mods e fixes (.ini) do 3dmigoto.
-**Current focus:** Phase 1: Engine de Interceptação Vulkan ARM64 & Infraestrutura Nativa
+**Current focus:** Phase 3: Substituição de Modelos & Shader Fixes
 
 ## Current Position
 
 Phase: 2 of 4 (Parser de Configurações 3dmigoto & Gestão de Hashes)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 2 executed — awaiting Phase 3 planning
-Last activity: 2026-08-03 — inih, xxHash, ModDatabase, HashRegistry, ResourceHashEngine, eviction hooks all implemented
+Plan: 2 of 2 in current phase (SHIPPED)
+Status: Phase 2 shipped — ready for Phase 3 planning
+Last activity: 2026-08-03 — Phase 2 shipped (commit 57988e7)
 
 Progress: [████░░░░░░] 40%
 
