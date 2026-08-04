@@ -18,33 +18,48 @@ std::vector<ModItem> ModManagerService::scan_mods(const std::string& mods_root) 
     m_mods.clear();
     std::error_code ec;
 
-    if (!std::filesystem::exists(mods_root, ec)) {
-        LOGE("ModManagerService: Mods directory does not exist: %s", mods_root.c_str());
-        return m_mods;
-    }
-
-    for (const auto& entry : std::filesystem::directory_iterator(mods_root, ec)) {
-        if (entry.is_directory()) {
-            std::string folder_name = entry.path().filename().string();
-            bool is_disabled = (folder_name.rfind(".disabled") != std::string::npos);
-            
-            ModItem item{};
-            item.name = is_disabled ? folder_name.substr(0, folder_name.length() - 9) : folder_name;
-            item.path = entry.path().string();
-            item.enabled = !is_disabled;
-            item.author = "Unknown";
-            item.resource_count = 0;
-
-            // Count .ini files inside mod directory
-            for (const auto& file : std::filesystem::directory_iterator(entry.path(), ec)) {
-                if (file.path().extension() == ".ini") {
-                    item.resource_count++;
-                }
-            }
-
-            m_mods.push_back(item);
-            LOGI("ModManagerService: Found mod '%s' (Enabled: %d)", item.name.c_str(), item.enabled);
+    try {
+        if (!std::filesystem::exists(mods_root, ec)) {
+            LOGE("ModManagerService: Mods directory does not exist or inaccessible: %s", mods_root.c_str());
+            return m_mods;
         }
+
+        for (const auto& entry : std::filesystem::directory_iterator(mods_root, ec)) {
+            if (entry.is_directory()) {
+                std::string folder_name = entry.path().filename().string();
+                bool is_disabled = (folder_name.rfind("DISABLED_", 0) == 0 ||
+                                    folder_name.rfind("disabled_", 0) == 0 ||
+                                    folder_name.rfind(".disabled") != std::string::npos);
+                
+                std::string clean_name = folder_name;
+                if (folder_name.rfind("DISABLED_", 0) == 0 || folder_name.rfind("disabled_", 0) == 0) {
+                    clean_name = folder_name.substr(9);
+                } else if (folder_name.rfind(".disabled") != std::string::npos) {
+                    clean_name = folder_name.substr(0, folder_name.length() - 9);
+                }
+
+                ModItem item{};
+                item.name = clean_name;
+                item.path = entry.path().string();
+                item.enabled = !is_disabled;
+                item.author = "Unknown";
+                item.resource_count = 0;
+
+                // Count .ini files inside mod directory
+                for (const auto& file : std::filesystem::directory_iterator(entry.path(), ec)) {
+                    if (file.path().extension() == ".ini") {
+                        item.resource_count++;
+                    }
+                }
+
+                m_mods.push_back(item);
+                LOGI("ModManagerService: Found mod '%s' (Enabled: %d)", item.name.c_str(), item.enabled);
+            }
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        LOGE("ModManagerService: filesystem_error scanning %s: %s", mods_root.c_str(), e.what());
+    } catch (const std::exception& e) {
+        LOGE("ModManagerService: exception scanning %s: %s", mods_root.c_str(), e.what());
     }
 
     return m_mods;
@@ -57,16 +72,23 @@ bool ModManagerService::set_mod_enabled(const std::string& mod_path, bool enable
     if (!std::filesystem::exists(p, ec)) return false;
 
     std::string current_name = p.filename().string();
-    bool is_currently_disabled = (current_name.rfind(".disabled") != std::string::npos);
+    bool is_currently_disabled = (current_name.rfind("DISABLED_", 0) == 0 ||
+                                  current_name.rfind("disabled_", 0) == 0 ||
+                                  current_name.rfind(".disabled") != std::string::npos);
+
+    std::string clean_name = current_name;
+    if (current_name.rfind("DISABLED_", 0) == 0 || current_name.rfind("disabled_", 0) == 0) {
+        clean_name = current_name.substr(9);
+    } else if (current_name.rfind(".disabled") != std::string::npos) {
+        clean_name = current_name.substr(0, current_name.length() - 9);
+    }
 
     if (enable && is_currently_disabled) {
-        std::string new_name = current_name.substr(0, current_name.length() - 9);
-        std::filesystem::path new_path = p.parent_path() / new_name;
+        std::filesystem::path new_path = p.parent_path() / clean_name;
         std::filesystem::rename(p, new_path, ec);
         return !ec;
     } else if (!enable && !is_currently_disabled) {
-        std::string new_name = current_name + ".disabled";
-        std::filesystem::path new_path = p.parent_path() / new_name;
+        std::filesystem::path new_path = p.parent_path() / ("DISABLED_" + clean_name);
         std::filesystem::rename(p, new_path, ec);
         return !ec;
     }

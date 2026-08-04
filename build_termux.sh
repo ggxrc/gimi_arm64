@@ -144,6 +144,24 @@ else
     echo -e "  [✔] Found android.jar at: $ANDROID_JAR"
 fi
 
+# ─── 3.5. Download Shizuku SDK ───────────────────────────────────────────────
+echo -e "\n${YELLOW}📦 Setting up Shizuku SDK...${NC}"
+mkdir -p build/shizuku_api build/shizuku_provider
+
+if [ ! -f "build/shizuku_api/classes.jar" ]; then
+    echo -e "  [ℹ️] Downloading shizuku-api-12.1.0..."
+    curl -sSL -o build/shizuku-api.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/api/12.1.0/api-12.1.0.aar" || true
+    unzip -q -o build/shizuku-api.aar classes.jar -d build/shizuku_api 2>/dev/null || true
+fi
+
+if [ ! -f "build/shizuku_provider/classes.jar" ]; then
+    echo -e "  [ℹ️] Downloading shizuku-provider-12.1.0..."
+    curl -sSL -o build/shizuku-provider.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/provider/12.1.0/provider-12.1.0.aar" || true
+    unzip -q -o build/shizuku-provider.aar classes.jar -d build/shizuku_provider 2>/dev/null || true
+fi
+
+SHIZUKU_CP="build/shizuku_api/classes.jar:build/shizuku_provider/classes.jar"
+
 # ─── 4. Compile Native C++20 Library (libgimi_arm64.so) ──────────────────────
 echo -e "\n${YELLOW}🛠️ Compiling C++20 native targets via CMake...${NC}"
 mkdir -p build
@@ -173,7 +191,7 @@ if [ "$AAPT_CMD" = "aapt2" ]; then
     aapt2 compile --dir android/app/src/main/res -o build/compiled_res.zip 2>/dev/null || true
     if [ -f "$ANDROID_JAR" ]; then
         aapt2 link -o "$RESOURCE_AP_" -I "$ANDROID_JAR" \
-            --min-sdk-version 26 --target-sdk-version 34 \
+            --min-sdk-version 29 --target-sdk-version 36 \
             --manifest android/app/src/main/AndroidManifest.xml \
             build/compiled_res.zip --java build/gen --auto-add-overlay 2>/dev/null || true
     fi
@@ -188,7 +206,7 @@ fi
 JAVA_FILES=$(find android/app/src/main/java build/gen -name "*.java" 2>/dev/null)
 if command -v javac >/dev/null 2>&1 && [ -f "$ANDROID_JAR" ] && [ -n "$JAVA_FILES" ]; then
     echo -e "  [✔] Compiling Java source files with javac..."
-    javac --release 8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES 2>/dev/null || javac -source 1.8 -target 1.8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES 2>/dev/null || true
+    javac --release 8 -cp "$ANDROID_JAR:$SHIZUKU_CP" -d build/obj $JAVA_FILES 2>/dev/null || javac -source 1.8 -target 1.8 -cp "$ANDROID_JAR:$SHIZUKU_CP" -d build/obj $JAVA_FILES 2>/dev/null || true
 fi
 
 # Convert Java class files to Dalvik bytecode (classes.dex)
@@ -197,9 +215,12 @@ if [ -n "$CLASS_FILES" ]; then
     mkdir -p build/dex
     if [ "$D8_CMD" = "d8" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using d8..."
-        d8 --lib "$ANDROID_JAR" --output build/dex $CLASS_FILES 2>/dev/null || true
+        d8 --lib "$ANDROID_JAR" --classpath build/shizuku_api/classes.jar --classpath build/shizuku_provider/classes.jar --output build/dex $CLASS_FILES build/shizuku_api/classes.jar build/shizuku_provider/classes.jar 2>/dev/null || true
     elif [ "$D8_CMD" = "dx" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using dx..."
+        # DX doesn't easily merge multiple jars on the fly, but we can copy classes
+        cp build/shizuku_api/classes.jar build/obj/shizuku_api.jar 2>/dev/null || true
+        cp build/shizuku_provider/classes.jar build/obj/shizuku_provider.jar 2>/dev/null || true
         dx --dex --output=build/dex/classes.dex build/obj 2>/dev/null || true
     fi
 fi

@@ -1,8 +1,8 @@
 package com.gimi.launcher.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gimi.launcher.native.GimiNativeBridge
-import com.gimi.launcher.native.ModInfo
+import com.gimi.launcher.jni.GimiNativeBridge
+import com.gimi.launcher.jni.ModInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

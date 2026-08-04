@@ -13,7 +13,8 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 5: Android Launcher App (GUI) & Manager de Injeção** - Interface Android nativa para gerenciar mods e ativar a Vulkan Layer sem root
 - [x] **Phase 6: Compilação & Testes de Integração do Launcher App** - Build Termux/NDK do APK e testes de integração do Launcher
 - [x] **Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)** - Interface Android nativa em Jetpack Compose Material 3 com NavGraph de 3 telas e JNI Native Bridge
-- [ ] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
+- [x] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
+- [x] **Phase 8.6: Compatibilidade Android 16 (API 36) / Min SDK 29, Modern Gradle & Shizuku IPC** - Suporte ao Android 10-16, Gradle 8.2+ para Android Studio e pipeline leve Termux
 
 ## Phase Details
 
@@ -128,11 +129,11 @@ Plans:
 **Success Criteria**:
   1. Camada de interceptação OpenGL ES (GLES/EGL) intercepta draw calls e texturas.
   2. Mod real do 3dmigoto (arquivos `.ini`, `.vb`, `.ib` e texturas) é parsed, hash e substituído no pipeline.
-**Plans:** TBD
+**Plans:** Complete
 
 Plans:
-- [ ] 08-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
-- [ ] 08-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
+- [x] 08-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
+- [x] 08-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
 
 ## Progress
 
@@ -148,4 +149,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Android Launcher App (GUI) | 2/2 | Complete | 2026-08-03 |
 | 6. Compilação & Testes do Launcher | 2/2 | Complete | 2026-08-03 |
 | 7. Android Launcher GUI (Jetpack Compose) | 2/2 | Complete | 2026-08-03 |
-| 8. Suporte OpenGL ES & Teste com Mod Real | 0/2 | Planned | - |
+| 8. Suporte OpenGL ES & Teste com Mod Real | 2/2 | Complete | 2026-08-03 |
+| 8.5. Correções de Bugs (Storage/Injeção) | 1/1 | Complete | 2026-08-03 |

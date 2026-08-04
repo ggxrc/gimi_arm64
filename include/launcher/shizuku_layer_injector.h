@@ -25,6 +25,9 @@ public:
     // Check if Shizuku binder service is active
     bool is_shizuku_available() const noexcept;
 
+    // Check if the layer is currently enabled in settings
+    bool is_layer_enabled() const noexcept;
+
     // Enable/Disable Vulkan Layer for target game package
     bool enable_layer(GameDistribution dist, const std::string& layer_so = "libgimi_arm64.so") noexcept;
     bool disable_layer() noexcept;

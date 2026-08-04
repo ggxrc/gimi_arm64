@@ -17,8 +17,8 @@ data class GamePackageOption(val label: String, val packageName: String)
 
 val GAME_PACKAGES = listOf(
     GamePackageOption("Play Store", "com.miHoYo.GenshinImpact"),
-    GamePackageOption("Galaxy Store", "com.miHoYo.GenshinImpact.samsung"),
-    GamePackageOption("China Server", "com.miHoYo.ys"),
+    GamePackageOption("Galaxy Store", "com.miHoYo.GI.samsung"),
+    GamePackageOption("China Server", "com.yuanshen.site"),
     GamePackageOption("Bilibili", "com.miHoYo.ys.bilibili")
 )
 

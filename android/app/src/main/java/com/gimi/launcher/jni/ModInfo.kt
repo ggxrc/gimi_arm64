@@ -1,4 +1,4 @@
-package com.gimi.launcher.native
+package com.gimi.launcher.jni
 
 data class ModInfo(
     val name: String,

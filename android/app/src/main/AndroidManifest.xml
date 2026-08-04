@@ -5,8 +5,8 @@
     android:versionName="1.0.0">
 
     <uses-sdk
-        android:minSdkVersion="26"
-        android:targetSdkVersion="34" />
+        android:minSdkVersion="29"
+        android:targetSdkVersion="36" />
 
     <!-- Storage permissions for scanning /sdcard/GIMI/Mods/ -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -15,6 +15,13 @@
 
     <!-- Query packages permission for detecting installed Genshin Impact variants -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!-- WRITE_SECURE_SETTINGS for Vulkan debug layer injection via Settings.Global API.
+         Must be granted via: adb shell pm grant com.gimi.launcher android.permission.WRITE_SECURE_SETTINGS -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" xmlns:tools="http://schemas.android.com/tools" />
+
+    <!-- Shizuku API permissions -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
     <application
         android:allowBackup="true"
@@ -32,5 +39,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Shizuku Client V3 Support metadata -->
+        <meta-data
+            android:name="moe.shizuku.client.V3_SUPPORT"
+            android:value="true" />
     </application>
 </manifest>

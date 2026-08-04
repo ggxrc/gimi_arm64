@@ -8,6 +8,7 @@
 
 #include "graphics/graphics_dispatcher.h"
 #include "graphics/egl_hook.h"
+#include "graphics/gles_hook.h"
 #include "config/mod_config.h"    // Phase 2: load mod .ini files
 #include "utils/logger.h"
 
@@ -61,12 +62,14 @@ void GraphicsDispatcher::init() noexcept {
     // Must happen before any render frames so the hash lookups work from frame 1.
     ModConfig::instance().load(GIMI_MODS_DIR);
 
-    // ── EGL / OpenGL ES path ──────────────────────────────────────────────────
+    // EGL / OpenGL ES path
     // Dobby-based hook on eglGetProcAddress is installed manually.
     if (egl_present) {
         m_egl_ok = EGLHook::install();
         if (m_egl_ok) {
             LOGI("GraphicsDispatcher: EGL hook active.");
+            // Also install GLESHook for direct libGLES interception
+            GLESHook::install();
         } else {
             LOGW("GraphicsDispatcher: EGL hook installation failed — "
                  "GLES interception unavailable (Dobby may be missing).");
@@ -95,6 +98,7 @@ void GraphicsDispatcher::shutdown() noexcept {
     LOGI("GraphicsDispatcher: shutting down (API=%d)…", static_cast<int>(m_api));
 
     if (m_egl_ok) {
+        GLESHook::uninstall();
         EGLHook::uninstall();
         m_egl_ok = false;
     }

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(gimi_arm64 VERSION 0.1.0 LANGUAGES CXX)
+project(gimi_arm64 VERSION 0.1.0 LANGUAGES C CXX)
 
 # ─── C++ Standard ────────────────────────────────────────────────────────────
 set(CMAKE_CXX_STANDARD 20)
@@ -44,6 +44,7 @@ set(GIMI_SOURCES
     # Phase 01-02: Vulkan Layer / EGL Dispatch Table
     src/graphics/vulkan_layer.cpp
     src/graphics/egl_hook.cpp
+    src/graphics/gles_hook.cpp
     src/graphics/graphics_dispatcher.cpp
     # Phase 02-01: .ini Parser & ModDatabase
     src/config/ini_parser.cpp
@@ -84,6 +85,24 @@ target_include_directories(test_launcher_integration PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
 )
 target_link_libraries(test_launcher_integration PRIVATE
+    ${log-lib}
+)
+
+# ─── Executable: E2E Real Mod Tests ──────────────────────────────────────────
+add_executable(test_e2e_real_mod
+    tests/test_e2e_real_mod.cpp
+    src/config/mod_config.cpp
+    src/config/ini_parser.cpp
+    src/mesh/mesh_swapper.cpp
+    src/utils/logger.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih/ini.c
+)
+target_include_directories(test_e2e_real_mod PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/inih
+)
+target_link_libraries(test_e2e_real_mod PRIVATE
     ${log-lib}
 )
 

@@ -1,4 +1,4 @@
-package com.gimi.launcher.native
+package com.gimi.launcher.jni
 
 object GimiNativeBridge {
     init {
@@ -20,6 +20,9 @@ object GimiNativeBridge {
 
     @JvmStatic
     external fun nativeGetLayerStatus(): Int
+
+    @JvmStatic
+    external fun nativeIsShizukuAvailable(): Boolean
 
     fun scanMods(path: String = "/sdcard/GIMI/Mods"): List<ModInfo> {
         return try {
@@ -50,6 +53,14 @@ object GimiNativeBridge {
             nativeGetLayerStatus()
         } catch (e: Throwable) {
             0
+        }
+    }
+
+    fun isShizukuAvailable(): Boolean {
+        return try {
+            nativeIsShizukuAvailable()
+        } catch (e: Throwable) {
+            false
         }
     }
 }

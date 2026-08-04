@@ -1,7 +1,7 @@
 package com.gimi.launcher.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gimi.launcher.native.GimiNativeBridge
+import com.gimi.launcher.jni.GimiNativeBridge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,9 +23,10 @@ class DashboardViewModel : ViewModel() {
 
     fun refreshStatus() {
         val status = GimiNativeBridge.getLayerStatus()
+        val isShizuku = GimiNativeBridge.isShizukuAvailable()
         _uiState.value = _uiState.value.copy(
             layerStatus = status,
-            isShizukuAvailable = status > 0
+            isShizukuAvailable = isShizuku
         )
     }
 

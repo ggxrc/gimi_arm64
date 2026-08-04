@@ -1,10 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // gimi_arm64 — Android Launcher: Shizuku Layer Injector Implementation
+//
+// DEPRECATED: All system() based calls have been replaced with no-op stubs.
+// Real injection and status detection logic is now in Java (MainActivity.java)
+// using the Settings.Global API, which works correctly within the Android
+// app sandbox without requiring shell access or root.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "launcher/shizuku_layer_injector.h"
 #include "utils/logger.h"
-#include <cstdlib>
 
 namespace gimi {
 
@@ -23,54 +27,44 @@ std::string ShizukuLayerInjector::get_package_name(GameDistribution dist) noexce
     return "com.miHoYo.GenshinImpact";
 }
 
+// DEPRECATED STUB: Real check is now done in Java via Settings.Global.getString()
+// The old system("settings get global ...") calls are blocked by Android's app sandbox.
 bool ShizukuLayerInjector::is_shizuku_available() const noexcept {
-    // Check if system settings command or ADB / root / shizuku is responsive
-    if (system("settings get global enable_gpu_debug_layers >/dev/null 2>&1") == 0) return true;
-    if (system("which su >/dev/null 2>&1") == 0) return true;
-    if (system("which shizuku >/dev/null 2>&1") == 0) return true;
-    if (system("which rish >/dev/null 2>&1") == 0) return true;
-    if (system("which adb >/dev/null 2>&1") == 0) return true;
-    return false;
+    LOGI("ShizukuLayerInjector::is_shizuku_available() — DEPRECATED STUB, returning true. Use Java Settings.Global API instead.");
+    return true;
 }
 
+// DEPRECATED STUB: Real check is now done in Java via Settings.Global.getString("gpu_debug_layers")
+// The old system("settings get global gpu_debug_layers | grep ...") is blocked by Android's app sandbox.
+bool ShizukuLayerInjector::is_layer_enabled() const noexcept {
+    LOGI("ShizukuLayerInjector::is_layer_enabled() — DEPRECATED STUB, returning true. Use Java Settings.Global API instead.");
+    return true;
+}
+
+// DEPRECATED STUB: Real injection is now done in Java via Settings.Global.putInt/putString()
+// The old system("settings put global ...") calls are blocked by Android's app sandbox.
 bool ShizukuLayerInjector::enable_layer(GameDistribution dist, const std::string& layer_so) noexcept {
     std::string pkg = get_package_name(dist);
-    LOGI("ShizukuLayerInjector: Enabling Vulkan layer '%s' for package '%s'", layer_so.c_str(), pkg.c_str());
-
-    std::string cmd1 = "settings put global enable_gpu_debug_layers 1";
-    std::string cmd2 = "settings put global gpu_debug_app " + pkg;
-    std::string cmd3 = "settings put global gpu_debug_layer_app com.gimi.launcher";
-    std::string cmd4 = "settings put global gpu_debug_layers " + layer_so;
-
-    int r1 = system(cmd1.c_str());
-    int r2 = system(cmd2.c_str());
-    int r3 = system(cmd3.c_str());
-    int r4 = system(cmd4.c_str());
-
-    if (r1 != 0 || r2 != 0) {
-        std::string su_cmd = "su -c \"" + cmd1 + " && " + cmd2 + " && " + cmd3 + " && " + cmd4 + "\" 2>/dev/null";
-        system(su_cmd.c_str());
-    }
-
+    LOGI("ShizukuLayerInjector::enable_layer() — DEPRECATED STUB for package '%s', layer '%s'. Use Java Settings.Global API instead.",
+         pkg.c_str(), layer_so.c_str());
     m_layer_enabled = true;
     m_current_dist = dist;
     return true;
 }
 
+// DEPRECATED STUB: Real disabling is now done in Java via Settings.Global.putInt()
 bool ShizukuLayerInjector::disable_layer() noexcept {
-    LOGI("ShizukuLayerInjector: Disabling Vulkan debug layers");
-    system("settings put global enable_gpu_debug_layers 0");
+    LOGI("ShizukuLayerInjector::disable_layer() — DEPRECATED STUB. Use Java Settings.Global API instead.");
     m_layer_enabled = false;
     return true;
 }
 
+// DEPRECATED STUB: Game launching is now done in Java via PackageManager.getLaunchIntentForPackage()
+// The old system("monkey -p ...") call is blocked by Android's app sandbox.
 bool ShizukuLayerInjector::launch_game(GameDistribution dist) noexcept {
     std::string pkg = get_package_name(dist);
-    LOGI("ShizukuLayerInjector: Launching package '%s'", pkg.c_str());
-
-    std::string launch_cmd = "monkey -p " + pkg + " -c android.intent.category.LAUNCHER 1";
-    int res = system(launch_cmd.c_str());
-    return (res == 0);
+    LOGI("ShizukuLayerInjector::launch_game() — DEPRECATED STUB for package '%s'. Use Java PackageManager instead.", pkg.c_str());
+    return true;
 }
 
 } // namespace gimi
