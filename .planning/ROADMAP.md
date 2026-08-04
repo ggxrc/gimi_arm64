@@ -15,6 +15,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 7: Android Launcher GUI (Jetpack Compose & NavGraph)** - Interface Android nativa em Jetpack Compose Material 3 com NavGraph de 3 telas e JNI Native Bridge
 - [x] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 - [x] **Phase 8.6: Compatibilidade Android 16 (API 36) / Min SDK 29, Modern Gradle & Shizuku IPC** - Suporte ao Android 10-16, Gradle 8.2+ para Android Studio e pipeline leve Termux
+- [x] **Phase 9: Pipeline de Compilação Padrão Gradle (`gradlew assembleDebug`)** - Configuração e validação completa do build via Gradle nativo
 
 ## Phase Details
 
