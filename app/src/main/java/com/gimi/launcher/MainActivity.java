@@ -464,10 +464,22 @@ public class MainActivity extends Activity {
             }
         });
 
-        final String manualCmdsText = "adb shell settings put global enable_gpu_debug_layers 1\n" +
+        String nativeLibDir = getApplicationInfo().nativeLibraryDir;
+        final String libPath = nativeLibDir + "/libgimi_arm64.so";
+
+        final String manualCmdsText = "💡 COMANDOS ADB PARA INJEÇÃO COMPLETA:\n\n" +
+            "1️⃣ Conceder Permissao:\n" +
+            "adb shell pm grant " + getPackageName() + " android.permission.WRITE_SECURE_SETTINGS\n\n" +
+            "2️⃣ Ativar GPU Layers:\n" +
+            "adb shell settings put global enable_gpu_debug_layers 1\n" +
             "adb shell settings put global gpu_debug_app " + selectedPackage + "\n" +
-            "adb shell settings put global gpu_debug_layer_app com.gimi.launcher\n" +
-            "adb shell settings put global gpu_debug_layers libgimi_arm64.so";
+            "adb shell settings put global gpu_debug_layer_app " + getPackageName() + "\n" +
+            "adb shell settings put global gpu_debug_layers libgimi_arm64.so\n" +
+            "adb shell settings put global gpu_debug_layers_gles libgimi_arm64.so\n\n" +
+            "3️⃣ Injeção Forçada LD_PRELOAD (Bypass para Genshin Store App):\n" +
+            "adb shell setprop wrap." + selectedPackage + " \"logwrapper " + libPath + "\"\n\n" +
+            "🛑 Desfazer Injeção Wrap:\n" +
+            "adb shell setprop wrap." + selectedPackage + " \"\"";
 
         manualCommandsBox = new TextView(this);
         manualCommandsBox.setText(manualCmdsText);
