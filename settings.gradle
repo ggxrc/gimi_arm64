@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "gimi_arm64"
-include ":android:app"
+include ":app"

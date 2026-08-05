@@ -26,9 +26,12 @@ namespace gimi {
 // Stores the original function pointers obtained from the downstream Vulkan
 // driver so that non-overridden calls can be forwarded transparently.
 struct InstanceDispatchTable {
-    PFN_vkGetInstanceProcAddr   GetInstanceProcAddr  = nullptr;
-    PFN_vkDestroyInstance       DestroyInstance      = nullptr;
-    PFN_vkCreateDevice          CreateDevice         = nullptr;
+    PFN_vkGetInstanceProcAddr              GetInstanceProcAddr                  = nullptr;
+    PFN_vkDestroyInstance                  DestroyInstance                      = nullptr;
+    PFN_vkCreateDevice                     CreateDevice                         = nullptr;
+    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties = nullptr;
+    PFN_vkEnumerateInstanceLayerProperties EnumerateInstanceLayerProperties      = nullptr;
+    PFN_vkEnumerateInstanceVersion         EnumerateInstanceVersion             = nullptr;
     // Extended in later phases as more entrypoints are intercepted.
 };
 
@@ -50,6 +53,9 @@ struct DeviceDispatchTable {
     PFN_vkDestroyImageView           DestroyImageView          = nullptr;
     PFN_vkCmdCopyBufferToImage       CmdCopyBufferToImage      = nullptr;
     PFN_vkUpdateDescriptorSets       UpdateDescriptorSets      = nullptr;
+    // Additional functions to prevent nullptr crashes
+    PFN_vkAllocateCommandBuffers     AllocateCommandBuffers    = nullptr;
+    PFN_vkFreeCommandBuffers         FreeCommandBuffers        = nullptr;
 };
 
 // ─── Dispatch Table Registry ──────────────────────────────────────────────────
@@ -64,6 +70,7 @@ public:
 
     const InstanceDispatchTable* get_instance(VkInstance inst) const noexcept;
     const DeviceDispatchTable*   get_device(VkDevice dev)      const noexcept;
+    const DeviceDispatchTable*   get_any_device()              const noexcept;
 
     void remove_instance(VkInstance inst) noexcept;
     void remove_device(VkDevice dev) noexcept;

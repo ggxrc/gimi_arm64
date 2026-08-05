@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.22)
 
 project(gimi_arm64 VERSION 0.1.0 LANGUAGES C CXX)
 
+# ─── Disable RPATH/RUNPATH for Android Compatibility ─────────────────────────
+set(CMAKE_SKIP_BUILD_RPATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_SKIP_RPATH TRUE)
+
 # ─── C++ Standard ────────────────────────────────────────────────────────────
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

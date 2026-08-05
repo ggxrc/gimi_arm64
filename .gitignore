@@ -17,7 +17,8 @@ out/
 .gradle/
 **/build/
 android/local.properties
-android/.gradle/
+local.properties
+.android-sdk/
 *.apk
 *.idsig
 *.aar

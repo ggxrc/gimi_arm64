@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gimi.launcher"
     android:versionCode="1"
@@ -20,15 +19,12 @@
          Must be granted via: adb shell pm grant com.gimi.launcher android.permission.WRITE_SECURE_SETTINGS -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" xmlns:tools="http://schemas.android.com/tools" />
 
-    <!-- Shizuku API permissions -->
-    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="GIMI Launcher"
         android:requestLegacyExternalStorage="true"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         
         <activity
             android:name=".MainActivity"
@@ -39,10 +35,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Shizuku Client V3 Support metadata -->
-        <meta-data
-            android:name="moe.shizuku.client.V3_SUPPORT"
-            android:value="true" />
     </application>
 </manifest>

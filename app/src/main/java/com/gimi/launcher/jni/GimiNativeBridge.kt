@@ -4,7 +4,7 @@ object GimiNativeBridge {
     init {
         try {
             System.loadLibrary("gimi_arm64")
-        } catch (e: UnsatisfiedLinkError) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
@@ -20,9 +20,6 @@ object GimiNativeBridge {
 
     @JvmStatic
     external fun nativeGetLayerStatus(): Int
-
-    @JvmStatic
-    external fun nativeIsShizukuAvailable(): Boolean
 
     fun scanMods(path: String = "/sdcard/GIMI/Mods"): List<ModInfo> {
         return try {
@@ -53,14 +50,6 @@ object GimiNativeBridge {
             nativeGetLayerStatus()
         } catch (e: Throwable) {
             0
-        }
-    }
-
-    fun isShizukuAvailable(): Boolean {
-        return try {
-            nativeIsShizukuAvailable()
-        } catch (e: Throwable) {
-            false
         }
     }
 }

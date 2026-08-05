@@ -60,7 +60,13 @@ void GraphicsDispatcher::init() noexcept {
     // ── Phase 2: Load mod configuration ─────────────────────────────────────
     // Scan GIMI_MODS_DIR for .ini files and populate ModDatabase.
     // Must happen before any render frames so the hash lookups work from frame 1.
-    ModConfig::instance().load(GIMI_MODS_DIR);
+    try {
+        ModConfig::instance().load(GIMI_MODS_DIR);
+    } catch (const std::exception& e) {
+        LOGW("GraphicsDispatcher: failed to load mod config: %s", e.what());
+    } catch (...) {
+        LOGW("GraphicsDispatcher: failed to load mod config (unknown error)");
+    }
 
     // EGL / OpenGL ES path
     // Dobby-based hook on eglGetProcAddress is installed manually.

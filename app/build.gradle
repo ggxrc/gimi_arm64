@@ -1,0 +1,62 @@
+boolean isArm64Host = System.getProperty("os.arch").contains("aarch64") || System.getProperty("os.arch").contains("arm64")
+
+if (!isArm64Host) {
+    apply plugin: 'com.android.application'
+    apply plugin: 'org.jetbrains.kotlin.android'
+
+    android {
+        namespace 'com.gimi.launcher'
+        compileSdk 34
+
+        defaultConfig {
+            applicationId "com.gimi.launcher"
+            minSdk 29
+            targetSdk 34
+            versionCode 1
+            versionName "1.0.0"
+
+            externalNativeBuild {
+                cmake {
+                    abiFilters 'arm64-v8a'
+                    arguments "-DANDROID_STL=c++_static", "-DCMAKE_CXX_STANDARD=20"
+                }
+            }
+        }
+
+        externalNativeBuild {
+            cmake {
+                path "../CMakeLists.txt"
+            }
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+
+        kotlinOptions {
+            jvmTarget = '17'
+        }
+    }
+
+    dependencies {
+        implementation 'androidx.core:core-ktx:1.12.0'
+        implementation 'androidx.appcompat:appcompat:1.6.1'
+        implementation 'com.google.android.material:material:1.11.0'
+    }
+} else {
+    task assembleDebug(type: Exec) {
+        workingDir '../'
+        commandLine 'bash', 'build_termux.sh'
+        
+        doLast {
+            def outDir = file("${buildDir}/outputs/apk/debug")
+            outDir.mkdirs()
+            copy {
+                from '../GIMI-Launcher.apk'
+                into outDir
+                rename { 'app-debug.apk' }
+            }
+        }
+    }
+}

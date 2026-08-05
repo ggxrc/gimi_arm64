@@ -2,7 +2,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # gimi_arm64 — Lightweight Termux Build & Packaging Script
 # Compiles C++20 libgimi_arm64.so, processes Android resources, compiles
-# Java sources (OpenJDK 21 + D8), and signs GIMI-Launcher.apk.
+# Kotlin & Java sources (kotlinc + D8), and signs GIMI-Launcher.apk.
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -e
@@ -44,6 +44,7 @@ check_cmd() {
 check_cmd cmake "cmake"
 check_cmd clang "clang"
 check_cmd javac "openjdk-21"
+check_cmd kotlinc "kotlin"
 
 # Zip tool check with python3 / jar fallback
 ZIP_CMD=""
@@ -94,7 +95,7 @@ check_cmd apksigner "apksigner"
 
 if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
     echo -e "\n${RED}⚠️ Missing required packages. You can install them in Termux via:${NC}"
-    echo -e "${YELLOW}pkg install openjdk-21 cmake clang aapt zipalign apksigner ecj zip${NC}\n"
+    echo -e "${YELLOW}pkg install openjdk-21 cmake clang aapt zipalign apksigner ecj zip kotlin${NC}\n"
 fi
 
 # ─── 2. Ensure Android Debug Keystore ─────────────────────────────────────────
@@ -106,6 +107,7 @@ echo -e "\n${YELLOW}📦 Locating android.jar...${NC}"
 
 ANDROID_JAR=""
 JAR_CANDIDATES=(
+    "$ROOT_DIR/.android-sdk/platforms/android-34/android.jar"
     "$ROOT_DIR/build/android.jar"
     "$ROOT_DIR/android/android.jar"
     "$ANDROID_HOME/platforms/android-34/android.jar"
@@ -144,30 +146,12 @@ else
     echo -e "  [✔] Found android.jar at: $ANDROID_JAR"
 fi
 
-# ─── 3.5. Download Shizuku SDK ───────────────────────────────────────────────
-echo -e "\n${YELLOW}📦 Setting up Shizuku SDK...${NC}"
-mkdir -p build/shizuku_api build/shizuku_provider
-
-if [ ! -f "build/shizuku_api/classes.jar" ]; then
-    echo -e "  [ℹ️] Downloading shizuku-api-12.1.0..."
-    curl -sSL -o build/shizuku-api.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/api/12.1.0/api-12.1.0.aar" || true
-    unzip -q -o build/shizuku-api.aar classes.jar -d build/shizuku_api 2>/dev/null || true
-fi
-
-if [ ! -f "build/shizuku_provider/classes.jar" ]; then
-    echo -e "  [ℹ️] Downloading shizuku-provider-12.1.0..."
-    curl -sSL -o build/shizuku-provider.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/provider/12.1.0/provider-12.1.0.aar" || true
-    unzip -q -o build/shizuku-provider.aar classes.jar -d build/shizuku_provider 2>/dev/null || true
-fi
-
-SHIZUKU_CP="build/shizuku_api/classes.jar:build/shizuku_provider/classes.jar"
-
 # ─── 4. Compile Native C++20 Library (libgimi_arm64.so) ──────────────────────
 echo -e "\n${YELLOW}🛠️ Compiling C++20 native targets via CMake...${NC}"
 mkdir -p build
 cd build
 
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_BUILD_RPATH=ON
 make -j$(nproc)
 
 cd "$ROOT_DIR"
@@ -179,8 +163,8 @@ else
     exit 1
 fi
 
-# ─── 5. Compile Android Resources & Java Launcher Code ────────────────────────
-echo -e "\n${YELLOW}📱 Compiling Android resources and Java sources...${NC}"
+# ─── 5. Compile Android Resources, Kotlin & Java Launcher Code ───────────────
+echo -e "\n${YELLOW}📱 Compiling Android resources and Kotlin/Java sources...${NC}"
 
 mkdir -p build/gen build/obj build/dex build/apk_contents
 
@@ -188,48 +172,44 @@ mkdir -p build/gen build/obj build/dex build/apk_contents
 RESOURCE_AP_="build/resources.ap_"
 
 if [ "$AAPT_CMD" = "aapt2" ]; then
-    aapt2 compile --dir android/app/src/main/res -o build/compiled_res.zip 2>/dev/null || true
+    aapt2 compile --dir app/src/main/res -o build/compiled_res.zip 2>/dev/null || true
     if [ -f "$ANDROID_JAR" ]; then
         aapt2 link -o "$RESOURCE_AP_" -I "$ANDROID_JAR" \
             --min-sdk-version 29 --target-sdk-version 36 \
-            --manifest android/app/src/main/AndroidManifest.xml \
+            --manifest app/src/main/AndroidManifest.xml \
             build/compiled_res.zip --java build/gen --auto-add-overlay 2>/dev/null || true
     fi
 elif [ "$AAPT_CMD" = "aapt" ]; then
     if [ -f "$ANDROID_JAR" ]; then
-        aapt package -f -m -J build/gen -M android/app/src/main/AndroidManifest.xml \
-            -S android/app/src/main/res -I "$ANDROID_JAR" -F "$RESOURCE_AP_" 2>/dev/null || true
+        aapt package -f -m -J build/gen -M app/src/main/AndroidManifest.xml \
+            -S app/src/main/res -I "$ANDROID_JAR" -F "$RESOURCE_AP_" 2>/dev/null || true
     fi
 fi
 
-# Compile Java sources if javac and android.jar exist
-JAVA_FILES=$(find android/app/src/main/java build/gen -name "*.java" 2>/dev/null)
+# Locate Kotlin and Java sources
+JAVA_FILES=$(find app/src/main/java build/gen -name "*.java" 2>/dev/null)
+
 if command -v javac >/dev/null 2>&1 && [ -f "$ANDROID_JAR" ] && [ -n "$JAVA_FILES" ]; then
-    echo -e "  [✔] Compiling Java source files with javac..."
-    javac --release 8 -cp "$ANDROID_JAR:$SHIZUKU_CP" -d build/obj $JAVA_FILES 2>/dev/null || javac -source 1.8 -target 1.8 -cp "$ANDROID_JAR:$SHIZUKU_CP" -d build/obj $JAVA_FILES 2>/dev/null || true
+    echo -e "  [✔] Compiling Java source files with javac (Java 8 bytecode)..."
+    javac -encoding UTF-8 -source 1.8 -target 1.8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES
 fi
 
-# Convert Java class files to Dalvik bytecode (classes.dex)
+# Convert compiled class files to Dalvik bytecode (classes.dex)
 CLASS_FILES=$(find build/obj -name "*.class" 2>/dev/null)
 if [ -n "$CLASS_FILES" ]; then
     mkdir -p build/dex
     if [ "$D8_CMD" = "d8" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using d8..."
-        d8 --lib "$ANDROID_JAR" --classpath build/shizuku_api/classes.jar --classpath build/shizuku_provider/classes.jar --output build/dex $CLASS_FILES build/shizuku_api/classes.jar build/shizuku_provider/classes.jar 2>/dev/null || true
+        d8 --lib "$ANDROID_JAR" --output build/dex $CLASS_FILES
     elif [ "$D8_CMD" = "dx" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using dx..."
-        # DX doesn't easily merge multiple jars on the fly, but we can copy classes
-        cp build/shizuku_api/classes.jar build/obj/shizuku_api.jar 2>/dev/null || true
-        cp build/shizuku_provider/classes.jar build/obj/shizuku_provider.jar 2>/dev/null || true
-        dx --dex --output=build/dex/classes.dex build/obj 2>/dev/null || true
+        dx --dex --output=build/dex/classes.dex build/obj
     fi
 fi
 
-# Ensure a fallback empty classes.dex if d8 didn't run or classes were empty
-if [ ! -f "build/dex/classes.dex" ]; then
-    echo -e "  [ℹ️] Creating minimal classes.dex placeholder..."
-    mkdir -p build/dex
-    touch build/dex/classes.dex
+if [ ! -f "build/dex/classes.dex" ] || [ ! -s "build/dex/classes.dex" ]; then
+    echo -e "  [❌] ERROR: classes.dex is missing or empty! Aborting build."
+    exit 1
 fi
 
 # ─── 6. Assemble, Align & Sign GIMI-Launcher.apk ─────────────────────────────
@@ -245,10 +225,13 @@ fi
 
 # Copy dex and native library into APK contents
 if [ ! -f "build/apk_contents/AndroidManifest.xml" ]; then
-    cp android/app/src/main/AndroidManifest.xml build/apk_contents/ 2>/dev/null || true
+    cp app/src/main/AndroidManifest.xml build/apk_contents/ 2>/dev/null || true
 fi
 cp build/dex/classes.dex build/apk_contents/ 2>/dev/null || true
 cp build/libgimi_arm64.so build/apk_contents/lib/arm64-v8a/
+if [ -f "/data/data/com.termux/files/usr/lib/libc++_shared.so" ]; then
+    cp /data/data/com.termux/files/usr/lib/libc++_shared.so build/apk_contents/lib/arm64-v8a/ 2>/dev/null || true
+fi
 
 cd build/apk_contents
 if command -v zip >/dev/null 2>&1; then
@@ -275,11 +258,15 @@ fi
 KEYSTORE="android/debug.keystore"
 if command -v apksigner >/dev/null 2>&1 && [ -f "$KEYSTORE" ] && [ -f "$ALIGNED_APK" ]; then
     echo -e "  [✔] Signing APK with $KEYSTORE using apksigner..."
-    apksigner sign --ks "$KEYSTORE" --ks-pass pass:android --ks-key-alias androiddebugkey --key-pass pass:android --min-sdk-version 26 --out "$FINAL_APK" "$ALIGNED_APK" 2>/dev/null || cp "$ALIGNED_APK" "$FINAL_APK"
+    apksigner sign --ks "$KEYSTORE" --ks-pass pass:android --ks-key-alias androiddebugkey --key-pass pass:android --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true --min-sdk-version 26 --out "$FINAL_APK" "$ALIGNED_APK" 2>/dev/null || cp "$ALIGNED_APK" "$FINAL_APK"
 else
     echo -e "  [⚠️] apksigner or keystore missing. Outputting unverified APK as $FINAL_APK."
     cp "$ALIGNED_APK" "$FINAL_APK" 2>/dev/null || true
 fi
+
+# Also output to standard AGP debug path app/build/outputs/apk/debug/app-debug.apk
+mkdir -p app/build/outputs/apk/debug
+cp "$FINAL_APK" app/build/outputs/apk/debug/app-debug.apk 2>/dev/null || true
 
 # ─── 7. Summary & Verification ───────────────────────────────────────────────
 echo -e "\n${GREEN}=====================================================${NC}"
@@ -292,6 +279,7 @@ fi
 
 if [ -f "$FINAL_APK" ]; then
     echo -e "  - Launcher APK:   ${CYAN}$FINAL_APK${NC} ($(du -h "$FINAL_APK" | cut -f1))"
+    echo -e "  - AGP Debug APK:  ${CYAN}app/build/outputs/apk/debug/app-debug.apk${NC}"
     if command -v apksigner >/dev/null 2>&1 && [ -f "$KEYSTORE" ]; then
         echo -e "  - Signature Status:"
         apksigner verify --min-sdk-version 26 "$FINAL_APK" && echo -e "    ${GREEN}✔ APK Signature Verified Cleanly!${NC}" || echo -e "    ${YELLOW}⚠️ Signature Verification Warning${NC}"

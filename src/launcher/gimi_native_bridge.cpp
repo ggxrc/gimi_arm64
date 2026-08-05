@@ -103,11 +103,6 @@ static jint inject_layer_internal(JNIEnv* env, jstring packageName) {
     return success ? 0 : -1;
 }
 
-static jboolean is_shizuku_available_internal() {
-    bool available = gimi::ShizukuLayerInjector::instance().is_shizuku_available();
-    return available ? JNI_TRUE : JNI_FALSE;
-}
-
 static jint get_layer_status_internal() {
     bool enabled = gimi::ShizukuLayerInjector::instance().is_layer_enabled();
     return enabled ? 1 : 0;
@@ -133,32 +128,6 @@ Java_com_gimi_launcher_jni_GimiNativeBridge_nativeInjectLayer(JNIEnv* env, jobje
 
 JNIEXPORT jint JNICALL
 Java_com_gimi_launcher_jni_GimiNativeBridge_nativeGetLayerStatus(JNIEnv*, jobject) {
-    return get_layer_status_internal();
-}
-
-JNIEXPORT jboolean JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridge_nativeIsShizukuAvailable(JNIEnv*, jobject) {
-    return is_shizuku_available_internal();
-}
-
-// ─── GimiNativeBridgeJava bindings ────────────────────────────────────────────
-JNIEXPORT jobjectArray JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridgeJava_nativeScanMods(JNIEnv* env, jobject, jstring path) {
-    return scan_mods_internal(env, path, "com/gimi/launcher/jni/ModInfoJava");
-}
-
-JNIEXPORT jboolean JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridgeJava_nativeToggleMod(JNIEnv* env, jobject, jstring modPath, jboolean enable) {
-    return toggle_mod_internal(env, modPath, enable);
-}
-
-JNIEXPORT jint JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridgeJava_nativeInjectLayer(JNIEnv* env, jobject, jstring packageName) {
-    return inject_layer_internal(env, packageName);
-}
-
-JNIEXPORT jint JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridgeJava_nativeGetLayerStatus(JNIEnv*, jobject) {
     return get_layer_status_internal();
 }
 

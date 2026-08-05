@@ -64,6 +64,14 @@ void VulkanLayerRegistry::remove_device(VkDevice dev) noexcept {
     m_devices.erase(dev);
 }
 
+const DeviceDispatchTable* VulkanLayerRegistry::get_any_device() const noexcept {
+    std::lock_guard lock(m_mtx);
+    if (!m_devices.empty()) {
+        return &m_devices.begin()->second;
+    }
+    return nullptr;
+}
+
 // ─── Internal Helpers ─────────────────────────────────────────────────────────
 
 // Retrieve the downstream GetInstanceProcAddr from the loader's chain.
@@ -115,17 +123,121 @@ gimi_vkCreateInstance(
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
     if (result != VK_SUCCESS) return result;
 
-    // Build and register the instance dispatch table.
+    // Build and register the instance dispatch table with ALL function pointers
+    // to prevent nullptr dereference crashes.
     InstanceDispatchTable table{};
     table.GetInstanceProcAddr = nextGIPA;
     table.DestroyInstance = reinterpret_cast<PFN_vkDestroyInstance>(
             nextGIPA(*pInstance, "vkDestroyInstance"));
     table.CreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
             nextGIPA(*pInstance, "vkCreateDevice"));
+    // Initialize remaining instance functions to prevent crashes
+    table.EnumerateInstanceExtensionProperties = reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+            nextGIPA(*pInstance, "vkEnumerateInstanceExtensionProperties"));
+    table.EnumerateInstanceLayerProperties = reinterpret_cast<PFN_vkEnumerateInstanceLayerProperties>(
+            nextGIPA(*pInstance, "vkEnumerateInstanceLayerProperties"));
+    table.EnumerateInstanceVersion = reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
+            nextGIPA(*pInstance, "vkEnumerateInstanceVersion"));
 
     VulkanLayerRegistry::instance().register_instance(*pInstance, table);
     LOGI("vkCreateInstance: registered dispatch table for instance %p", (void*)*pInstance);
     return VK_SUCCESS;
+}
+
+// ─── vkCreateDevice Intercept ───────────────────────────────────────────────
+static VKAPI_ATTR VkResult VKAPI_CALL
+gimi_vkCreateDevice(
+        VkPhysicalDevice physicalDevice,
+        const VkDeviceCreateInfo* pCreateInfo,
+        const VkAllocationCallbacks* pAllocator,
+        VkDevice* pDevice) noexcept {
+    
+    // Walk the pNext chain to get the layer's GetInstanceProcAddr
+    PFN_vkGetInstanceProcAddr nextGIPA = nullptr;
+    PFN_vkGetDeviceProcAddr nextGDPA = nullptr;
+    
+    if (pCreateInfo && pCreateInfo->pNext) {
+        auto* chain = reinterpret_cast<const VkLayerDeviceCreateInfo*>(pCreateInfo->pNext);
+        while (chain) {
+            if (chain->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO &&
+                chain->function == VK_LAYER_LINK_INFO) {
+                nextGIPA = chain->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+                nextGDPA = chain->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+                // Advance the chain for the next layer
+                const_cast<VkLayerDeviceCreateInfo*>(chain)->u.pLayerInfo = 
+                    chain->u.pLayerInfo->pNext;
+                break;
+            }
+            chain = reinterpret_cast<const VkLayerDeviceCreateInfo*>(chain->pNext);
+        }
+    }
+    
+    if (!nextGIPA) {
+        LOGE("gimi_vkCreateDevice: cannot find next GetInstanceProcAddr in chain");
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Get the real vkCreateDevice from the next layer/driver
+    auto fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
+            nextGIPA(VK_NULL_HANDLE, "vkCreateDevice"));
+    if (!fpCreateDevice) {
+        LOGE("gimi_vkCreateDevice: cannot resolve vkCreateDevice");
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VkResult result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    if (result != VK_SUCCESS) return result;
+
+    // Build and register the device dispatch table with ALL function pointers
+    // to prevent nullptr dereference crashes.
+    DeviceDispatchTable table{};
+    
+    // Use nextGDPA if available, otherwise use nextGIPA
+    auto get_dev_proc = nextGDPA ? nextGDPA : 
+        reinterpret_cast<PFN_vkGetDeviceProcAddr>(nextGIPA(VK_NULL_HANDLE, "vkGetDeviceProcAddr"));
+    
+    table.GetDeviceProcAddr = get_dev_proc;
+    table.DestroyDevice = reinterpret_cast<PFN_vkDestroyDevice>(
+            get_dev_proc(*pDevice, "vkDestroyDevice"));
+    table.DestroyBuffer = reinterpret_cast<PFN_vkDestroyBuffer>(
+            get_dev_proc(*pDevice, "vkDestroyBuffer"));
+    table.DestroyImage = reinterpret_cast<PFN_vkDestroyImage>(
+            get_dev_proc(*pDevice, "vkDestroyImage"));
+    table.CmdBindVertexBuffers = reinterpret_cast<PFN_vkCmdBindVertexBuffers>(
+            get_dev_proc(*pDevice, "vkCmdBindVertexBuffers"));
+    table.CmdBindIndexBuffer = reinterpret_cast<PFN_vkCmdBindIndexBuffer>(
+            get_dev_proc(*pDevice, "vkCmdBindIndexBuffer"));
+    table.CmdDrawIndexed = reinterpret_cast<PFN_vkCmdDrawIndexed>(
+            get_dev_proc(*pDevice, "vkCmdDrawIndexed"));
+    table.CreateShaderModule = reinterpret_cast<PFN_vkCreateShaderModule>(
+            get_dev_proc(*pDevice, "vkCreateShaderModule"));
+    table.CreateImageView = reinterpret_cast<PFN_vkCreateImageView>(
+            get_dev_proc(*pDevice, "vkCreateImageView"));
+    table.DestroyImageView = reinterpret_cast<PFN_vkDestroyImageView>(
+            get_dev_proc(*pDevice, "vkDestroyImageView"));
+    table.CmdCopyBufferToImage = reinterpret_cast<PFN_vkCmdCopyBufferToImage>(
+            get_dev_proc(*pDevice, "vkCmdCopyBufferToImage"));
+    table.UpdateDescriptorSets = reinterpret_cast<PFN_vkUpdateDescriptorSets>(
+            get_dev_proc(*pDevice, "vkUpdateDescriptorSets"));
+    table.AllocateCommandBuffers = reinterpret_cast<PFN_vkAllocateCommandBuffers>(
+            get_dev_proc(*pDevice, "vkAllocateCommandBuffers"));
+    table.FreeCommandBuffers = reinterpret_cast<PFN_vkFreeCommandBuffers>(
+            get_dev_proc(*pDevice, "vkFreeCommandBuffers"));
+
+    VulkanLayerRegistry::instance().register_device(*pDevice, table);
+    LOGI("gimi_vkCreateDevice: registered dispatch table for device %p", (void*)*pDevice);
+    return VK_SUCCESS;
+}
+
+// ─── vkDestroyDevice Intercept ───────────────────────────────────────────────
+static VKAPI_ATTR void VKAPI_CALL
+gimi_vkDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator) noexcept {
+    const DeviceDispatchTable* table = VulkanLayerRegistry::instance().get_device(device);
+    if (table && table->DestroyDevice) {
+        table->DestroyDevice(device, pAllocator);
+    }
+    VulkanLayerRegistry::instance().remove_device(device);
+    LOGD("gimi_vkDestroyDevice: removed dispatch table for device %p", (void*)device);
 }
 
 // ─── vkDestroyInstance Intercept ──────────────────────────────────────────────
@@ -165,6 +277,11 @@ gimi_vkDestroyImage(VkDevice device, VkImage image,
 // ─── Phase 3: Draw-Call Interception ──────────────────────────────────────
 // Intercept vertex/index buffer binds and draw calls for mesh swapping.
 
+// Helper to get any available device for command buffer forwarding
+static const DeviceDispatchTable* get_any_device_table() noexcept {
+    return VulkanLayerRegistry::instance().get_any_device();
+}
+
 static VKAPI_ATTR void VKAPI_CALL
 gimi_vkCmdBindVertexBuffers(VkCommandBuffer commandBuffer,
                             uint32_t firstBinding, uint32_t bindingCount,
@@ -174,12 +291,11 @@ gimi_vkCmdBindVertexBuffers(VkCommandBuffer commandBuffer,
     CommandBufferStateTracker::instance().bind_vertex_buffers(
         commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 
-    // Forward to the real driver (we need device to look up the dispatch table,
-    // but VkCommandBuffer is created from a VkDevice. Since we can't recover
-    // the device from a command buffer in the layer, we store it globally
-    // during vkAllocateCommandBuffers. For now, forward via the first device.)
-    // TODO: In a full implementation, map CB → Device. For MVP we rely on
-    // the loader routing correctly.
+    // Forward to the real driver
+    const DeviceDispatchTable* table = get_any_device_table();
+    if (table && table->CmdBindVertexBuffers) {
+        table->CmdBindVertexBuffers(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+    }
 }
 
 static VKAPI_ATTR void VKAPI_CALL
@@ -188,6 +304,12 @@ gimi_vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer,
                            VkIndexType indexType) noexcept {
     CommandBufferStateTracker::instance().bind_index_buffer(
         commandBuffer, buffer, offset, indexType);
+
+    // Forward to the real driver
+    const DeviceDispatchTable* table = get_any_device_table();
+    if (table && table->CmdBindIndexBuffer) {
+        table->CmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
+    }
 }
 
 static VKAPI_ATTR void VKAPI_CALL
@@ -220,10 +342,12 @@ gimi_vkCmdDrawIndexed(VkCommandBuffer commandBuffer,
         }
     }
 
-    // Forward to the real driver.
-    // Note: the actual forwarding requires the device dispatch table.
-    // In a Vulkan layer, vkCmdDrawIndexed is a device-level command.
-    // The dispatch is handled by the loader's trampoline.
+    // Forward to the real driver
+    const DeviceDispatchTable* table = get_any_device_table();
+    if (table && table->CmdDrawIndexed) {
+        table->CmdDrawIndexed(commandBuffer, indexCount, instanceCount, 
+                              firstIndex, vertexOffset, firstInstance);
+    }
 }
 
 // ─── Phase 3: Shader Module Creation Intercept ───────────────────────────
@@ -299,7 +423,12 @@ gimi_vkCmdCopyBufferToImage(VkCommandBuffer commandBuffer,
         LOGD("gimi_vkCmdCopyBufferToImage: Image %p linked to buffer hash 0x%08X", (void*)dstImage, cached->hash32);
     }
 
-    // Note: To forward we need the device. Usually loader trampoline handles this.
+    // Forward to the real driver
+    const DeviceDispatchTable* table = get_any_device_table();
+    if (table && table->CmdCopyBufferToImage) {
+        table->CmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, 
+                                    dstImageLayout, regionCount, pRegions);
+    }
 }
 
 static VKAPI_ATTR void VKAPI_CALL
@@ -370,6 +499,7 @@ vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
     if (strcmp(pName, "vkGetDeviceProcAddr")    == 0) return (PFN_vkVoidFunction)vkGetDeviceProcAddr;
     if (strcmp(pName, "vkCreateInstance")       == 0) return (PFN_vkVoidFunction)gimi::gimi_vkCreateInstance;
     if (strcmp(pName, "vkDestroyInstance")      == 0) return (PFN_vkVoidFunction)gimi::gimi_vkDestroyInstance;
+    if (strcmp(pName, "vkCreateDevice")         == 0) return (PFN_vkVoidFunction)gimi::gimi_vkCreateDevice;
 
     // ── Forward everything else to the downstream driver ────────────────────
     const gimi::InstanceDispatchTable* table =
@@ -382,6 +512,8 @@ vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
 vkGetDeviceProcAddr(VkDevice device, const char* pName) {
+    // ── Phase 1: device lifecycle ───────────────────────────────────────────
+    if (strcmp(pName, "vkDestroyDevice")     == 0) return (PFN_vkVoidFunction)gimi::gimi_vkDestroyDevice;
     // ── Phase 2: hash eviction intercepts ──────────────────────────────────
     if (strcmp(pName, "vkDestroyBuffer") == 0) return (PFN_vkVoidFunction)gimi::gimi_vkDestroyBuffer;
     if (strcmp(pName, "vkDestroyImage")  == 0) return (PFN_vkVoidFunction)gimi::gimi_vkDestroyImage;
