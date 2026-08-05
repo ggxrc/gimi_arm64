@@ -16,6 +16,13 @@
     <!-- Query packages permission for detecting installed Genshin Impact variants -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
+    <queries>
+        <package android:name="com.miHoYo.GenshinImpact" />
+        <package android:name="com.miHoYo.GI.samsung" />
+        <package android:name="com.yuanshen.site" />
+        <package android:name="com.miHoYo.ys.bilibili" />
+    </queries>
+
     <!-- WRITE_SECURE_SETTINGS for Vulkan debug layer injection via Settings.Global API.
          Must be granted via: adb shell pm grant com.gimi.launcher android.permission.WRITE_SECURE_SETTINGS -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
