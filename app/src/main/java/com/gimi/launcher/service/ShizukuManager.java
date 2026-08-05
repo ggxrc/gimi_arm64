@@ -60,7 +60,7 @@ public class ShizukuManager {
         String cmd = "settings put global enable_gpu_debug_layers 1 && " +
                      "settings put global gpu_debug_app " + targetPackage + " && " +
                      "settings put global gpu_debug_layer_app " + context.getPackageName() + " && " +
-                     "settings put global gpu_debug_layers libgimi_arm64.so && " +
+                     "settings put global gpu_debug_layers VK_LAYER_GIMI_ARM64 && " +
                      "settings put global gpu_debug_layers_gles libgimi_arm64.so";
         return executeAdbCommand(context, cmd);
     }

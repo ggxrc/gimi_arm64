@@ -19,9 +19,7 @@
     <queries>
         <package android:name="com.miHoYo.GenshinImpact" />
         <package android:name="com.miHoYo.GI.samsung" />
-        <package android:name="com.miHoYo.GenshinImpact.samsung" />
         <package android:name="com.yuanshen.site" />
-        <package android:name="com.miHoYo.ys" />
         <package android:name="com.miHoYo.ys.bilibili" />
     </queries>
 

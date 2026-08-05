@@ -67,22 +67,17 @@ public class MainActivity extends Activity {
     private LinearLayout modsListContainer;
 
     // Data
-    private static final String[] packageNames = new String[] {
+    private final String[] packageNames = new String[]{
         "com.miHoYo.GenshinImpact",
         "com.miHoYo.GI.samsung",
-        "com.miHoYo.GenshinImpact.samsung",
         "com.yuanshen.site",
-        "com.miHoYo.ys",
         "com.miHoYo.ys.bilibili"
     };
-
-    private static final String[] baseGameNames = new String[] {
-        "Genshin Impact (Play Store)",
-        "Genshin Impact (Galaxy Store GI)",
-        "Genshin Impact (Galaxy Store Alt)",
-        "Genshin Impact (China Site)",
-        "Genshin Impact (China Official)",
-        "Genshin Impact (Bilibili)"
+    private final String[] baseGameNames = new String[]{
+        "Global / Play Store",
+        "Galaxy Store (Samsung)",
+        "China Server (Official)",
+        "Bilibili (China)"
     };
     private String[] displayGameNames;
     private String selectedPackage = packageNames[0];
@@ -497,7 +492,7 @@ public class MainActivity extends Activity {
             "adb shell settings put global enable_gpu_debug_layers 1\n" +
             "adb shell settings put global gpu_debug_app " + selectedPackage + "\n" +
             "adb shell settings put global gpu_debug_layer_app " + getPackageName() + "\n" +
-            "adb shell settings put global gpu_debug_layers libgimi_arm64.so\n" +
+            "adb shell settings put global gpu_debug_layers VK_LAYER_GIMI_ARM64\n" +
             "adb shell settings put global gpu_debug_layers_gles libgimi_arm64.so\n\n" +
             "🛑 Desfazer Injeção Wrap:\n" +
             "adb shell setprop wrap." + selectedPackage + " \"\"";
