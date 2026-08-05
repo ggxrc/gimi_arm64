@@ -83,6 +83,14 @@ public class MainActivity extends Activity {
     private String selectedPackage = packageNames[0];
     private List<ModInfo> currentModsList = new ArrayList<>();
 
+    // Graphics API Selection (0 = Dual Auto, 1 = OpenGL ES, 2 = Vulkan)
+    private int selectedApiIndex = 0;
+    private final String[] apiOptions = new String[]{
+        "🔮 Dual Auto (Vulkan + OpenGL ES)",
+        "🟡 OpenGL ES 3.2 (GLES Layer)",
+        "🟢 Vulkan 1.3 (Vulkan Layer)"
+    };
+
     // Developer & Modder Toggles
     private boolean enableOverlay = true;
     private boolean enableNotification = true;
@@ -500,6 +508,43 @@ public class MainActivity extends Activity {
         gameTitle.setTextColor(Color.WHITE);
         gameTitle.setTextSize(16f);
         gameTitle.setTypeface(null, Typeface.BOLD);
+        gameCard.addView(gameTitle);
+
+        // Graphics API Mode Selector
+        TextView apiLabel = new TextView(this);
+        apiLabel.setText("Graphics API Interception Mode:");
+        apiLabel.setTextColor(Color.parseColor("#B0BEC5"));
+        apiLabel.setTextSize(12f);
+        apiLabel.setPadding(0, 10, 0, 2);
+
+        Spinner apiSpinner = new Spinner(this);
+        ArrayAdapter<String> apiAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, apiOptions);
+        apiSpinner.setAdapter(apiAdapter);
+        apiSpinner.setSelection(0);
+
+        LinearLayout.LayoutParams apiSpinnerParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        apiSpinnerParams.setMargins(0, 4, 0, 12);
+        apiSpinner.setLayoutParams(apiSpinnerParams);
+
+        apiSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedApiIndex = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Game Package Spinner
+        TextView pkgLabel = new TextView(this);
+        pkgLabel.setText("Target Game Package:");
+        pkgLabel.setTextColor(Color.parseColor("#B0BEC5"));
+        pkgLabel.setTextSize(12f);
+        pkgLabel.setPadding(0, 4, 0, 2);
 
         // Auto Detect Installed Game Packages
         displayGameNames = new String[packageNames.length];
@@ -594,7 +639,9 @@ public class MainActivity extends Activity {
         outputLogText.setPadding(12, 12, 12, 12);
         outputLogText.setBackgroundColor(Color.parseColor("#263238"));
 
-        gameCard.addView(gameTitle);
+        gameCard.addView(apiLabel);
+        gameCard.addView(apiSpinner);
+        gameCard.addView(pkgLabel);
         gameCard.addView(gameSpinner);
         gameCard.addView(injectBtn);
         gameCard.addView(revertBtn);
@@ -620,9 +667,15 @@ public class MainActivity extends Activity {
 
         String currentGpuApp = Settings.Global.getString(getContentResolver(), "gpu_debug_app");
         int layerEnabled = Settings.Global.getInt(getContentResolver(), "enable_gpu_debug_layers", 0);
+        String vkLayers = Settings.Global.getString(getContentResolver(), "gpu_debug_layers");
+        String glesLayers = Settings.Global.getString(getContentResolver(), "gpu_debug_layers_gles");
 
         if (layerEnabled == 1 && currentGpuApp != null && !currentGpuApp.isEmpty()) {
-            vulkanStatusText.setText("🟢 ACTIVE (Hook Injected for " + currentGpuApp + ")");
+            boolean hasGles = glesLayers != null && glesLayers.contains("libgimi_arm64.so");
+            boolean hasVk = vkLayers != null && vkLayers.contains("libgimi_arm64.so");
+            String modeStr = (hasGles && hasVk) ? "Vulkan + OpenGL ES" : (hasGles ? "OpenGL ES (EGL)" : "Vulkan");
+
+            vulkanStatusText.setText("🟢 ACTIVE (" + modeStr + " Layer Injected for " + currentGpuApp + ")");
             vulkanStatusText.setTextColor(Color.parseColor("#00E676"));
         } else if (status > 0) {
             vulkanStatusText.setText("🟢 ACTIVE (Hook Loaded)");
@@ -646,7 +699,17 @@ public class MainActivity extends Activity {
             Settings.Global.putInt(getContentResolver(), "enable_gpu_debug_layers", 1);
             Settings.Global.putString(getContentResolver(), "gpu_debug_app", selectedPackage);
             Settings.Global.putString(getContentResolver(), "gpu_debug_layer_app", getPackageName());
-            Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so");
+
+            if (selectedApiIndex == 0) { // Dual Auto
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
+            } else if (selectedApiIndex == 1) { // OpenGL ES
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
+            } else { // Vulkan
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "");
+            }
 
             refreshDashboardStatus();
 
@@ -686,6 +749,7 @@ public class MainActivity extends Activity {
             Settings.Global.putString(getContentResolver(), "gpu_debug_app", "");
             Settings.Global.putString(getContentResolver(), "gpu_debug_layer_app", "");
             Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
+            Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "");
 
             // Stop Services
             stopForegroundService();
