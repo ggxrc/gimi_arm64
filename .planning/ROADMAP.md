@@ -16,6 +16,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 - [x] **Phase 8.6: Compatibilidade Android 16 (API 36) / Min SDK 29, Modern Gradle & Shizuku IPC** - Suporte ao Android 10-16, Gradle 8.2+ para Android Studio e pipeline leve Termux
 - [x] **Phase 9: Pipeline de Compilação Padrão Gradle (`gradlew assembleDebug`)** - Configuração e validação completa do build via Gradle nativo
+- [x] **Phase 10: Testes Reais, Adaptação de Mods & Notificação de Controle (v1.0 Final)** - Log de renderização em tempo real, notificação fixa de controle (Hot-reload & Dump) e libgimi_arm64.so finalizada
 
 ## Phase Details
 

@@ -46,6 +46,9 @@ public:
     size_t buffer_cache_size() const noexcept;
     size_t image_cache_size()  const noexcept;
 
+    // ── Bulk operations ──────────────────────────────────────────────────────
+    void clear() noexcept;  // Flush all cached hashes (for hot-reload)
+
 private:
     mutable std::shared_mutex m_buf_mtx;
     mutable std::shared_mutex m_img_mtx;

@@ -1,5 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // gimi_arm64 — Resource Hash Engine Implementation
+//
+// Computes xxHash64 digests and supports dump mode for mod creation.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "hash/resource_hash_engine.h"
@@ -10,6 +12,8 @@
 
 #include <algorithm>  // std::min
 #include <cstring>    // memcpy
+#include <cstdio>     // fopen, fwrite
+#include <sys/stat.h> // mkdir
 
 namespace gimi {
 
@@ -44,18 +48,20 @@ uint32_t ResourceHashEngine::hash_buffer(
     }
 
     uint64_t h64 = XXH64(data, static_cast<size_t>(sample_size), /*seed=*/0);
-    vkUnmapMemory(device, memory);
-
     uint32_t h32 = static_cast<uint32_t>(h64 & 0xFFFFFFFF);
+
+    // ── Dump mode: save buffer data to /sdcard/GIMI/Dump/ ────────────────────
+    if (m_dump_enabled.load(std::memory_order_relaxed)) {
+        dump_buffer(h32, data, static_cast<size_t>(sample_size));
+    }
+
+    vkUnmapMemory(device, memory);
 
     HashEntry entry{h64, h32};
     HashRegistry::instance().store_buffer(buffer, entry);
 
-    LOGD("ResourceHashEngine: buffer %p → hash64=0x%016llX hash32=0x%08X (sampled %zu bytes)",
-         (void*)buffer,
-         static_cast<unsigned long long>(h64),
-         h32,
-         static_cast<size_t>(sample_size));
+    LOGR("ResourceHashEngine: buffer %p → hash32=0x%08X (sampled %zu bytes)",
+         (void*)buffer, h32, static_cast<size_t>(sample_size));
 
     return h32;
 }
@@ -99,11 +105,41 @@ uint32_t ResourceHashEngine::hash_image(
     HashEntry entry{h64, h32};
     HashRegistry::instance().store_image(image, entry);
 
-    LOGD("ResourceHashEngine: image %p %ux%u fmt=%d → hash32=0x%08X",
+    LOGR("ResourceHashEngine: image %p %ux%u fmt=%d → hash32=0x%08X",
          (void*)image, ci.extent.width, ci.extent.height,
          static_cast<int>(ci.format), h32);
 
     return h32;
+}
+
+// ─── dump_buffer ──────────────────────────────────────────────────────────────
+void ResourceHashEngine::dump_buffer(uint32_t hash, const void* data, size_t size) noexcept {
+    // Create dump directory if needed
+    mkdir(m_dump_path.c_str(), 0755);
+
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/0x%08X.buf", m_dump_path.c_str(), hash);
+
+    // Check if file already exists (avoid re-dumping)
+    struct stat st;
+    if (stat(filename, &st) == 0) {
+        return;  // Already dumped
+    }
+
+    FILE* f = fopen(filename, "wb");
+    if (f) {
+        fwrite(data, 1, size, f);
+        fclose(f);
+        LOGR("DUMP: Saved buffer hash=0x%08X (%zu bytes) → %s", hash, size, filename);
+    } else {
+        LOGE("DUMP: Failed to write %s", filename);
+    }
+}
+
+// ─── invalidate_caches ───────────────────────────────────────────────────────
+void ResourceHashEngine::invalidate_caches() noexcept {
+    HashRegistry::instance().clear();
+    LOGR("ResourceHashEngine: caches invalidated (hot-reload)");
 }
 
 } // namespace gimi

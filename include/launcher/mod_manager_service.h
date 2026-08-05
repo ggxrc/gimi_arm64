@@ -33,6 +33,9 @@ public:
     // Generate active mod configuration for the injector
     std::string generate_active_config() const noexcept;
 
+    // Hot-reload: re-scan mods directory and refresh internal state
+    void reload(const std::string& mods_root = "/sdcard/GIMI/Mods") noexcept;
+
 private:
     std::vector<ModItem> m_mods;
 };

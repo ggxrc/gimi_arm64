@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.gimi.launcher.jni.GimiNativeBridge;
 import com.gimi.launcher.jni.ModInfo;
+import com.gimi.launcher.service.GimiForegroundService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -88,6 +89,13 @@ public class MainActivity extends Activity {
 
         try {
             ensureModsDirectory();
+            ensureDumpDirectory();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        try {
+            GimiNativeBridge.initLogger();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -131,6 +139,13 @@ public class MainActivity extends Activity {
         File modsDir = new File("/sdcard/GIMI/Mods");
         if (!modsDir.exists()) {
             modsDir.mkdirs();
+        }
+    }
+
+    private void ensureDumpDirectory() {
+        File dumpDir = new File("/sdcard/GIMI/Dump");
+        if (!dumpDir.exists()) {
+            dumpDir.mkdirs();
         }
     }
 
@@ -621,6 +636,9 @@ public class MainActivity extends Activity {
 
             refreshDashboardStatus();
 
+            // Start foreground service with persistent notification controls
+            startForegroundService();
+
             Intent launchIntent = getPackageManager().getLaunchIntentForPackage(selectedPackage);
             if (launchIntent != null) {
                 outputLogText.setText("System Output: Layer injected! Launching game " + selectedPackage + "...");
@@ -648,6 +666,9 @@ public class MainActivity extends Activity {
             Settings.Global.putString(getContentResolver(), "gpu_debug_app", "");
             Settings.Global.putString(getContentResolver(), "gpu_debug_layer_app", "");
             Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
+
+            // Stop foreground service
+            stopForegroundService();
 
             outputLogText.setText("System Output: Reverted Vulkan debug layer settings (Layer Disabled).");
             outputLogText.setTextColor(Color.parseColor("#80D8FF"));
@@ -964,5 +985,28 @@ public class MainActivity extends Activity {
             clipboard.setPrimaryClip(clip);
         }
         Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
+    }
+
+    // ─── Foreground Service Controls ────────────────────────────────────────
+    private void startForegroundService() {
+        try {
+            Intent serviceIntent = new Intent(this, GimiForegroundService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopForegroundService() {
+        try {
+            Intent serviceIntent = new Intent(this, GimiForegroundService.class);
+            stopService(serviceIntent);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -106,4 +106,10 @@ std::string ModManagerService::generate_active_config() const noexcept {
     return config;
 }
 
+void ModManagerService::reload(const std::string& mods_root) noexcept {
+    LOGI("ModManagerService: hot-reload — rescanning %s", mods_root.c_str());
+    scan_mods(mods_root);
+    LOGI("ModManagerService: hot-reload complete — %zu mods found", m_mods.size());
+}
+
 } // namespace gimi

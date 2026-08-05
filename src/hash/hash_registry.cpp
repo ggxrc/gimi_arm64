@@ -61,4 +61,17 @@ size_t HashRegistry::image_cache_size() const noexcept {
     return m_image_hashes.size();
 }
 
+// ─── Bulk operations ──────────────────────────────────────────────────────────
+void HashRegistry::clear() noexcept {
+    {
+        std::unique_lock lock(m_buf_mtx);
+        m_buffer_hashes.clear();
+    }
+    {
+        std::unique_lock lock(m_img_mtx);
+        m_image_hashes.clear();
+    }
+    LOGI("HashRegistry: all caches cleared");
+}
+
 } // namespace gimi
