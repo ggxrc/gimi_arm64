@@ -189,9 +189,20 @@ fi
 # Locate Kotlin and Java sources
 JAVA_FILES=$(find app/src/main/java build/gen -name "*.java" 2>/dev/null)
 
+# Download Shizuku dependencies
+mkdir -p build/libs
+if [ ! -f "build/libs/shizuku-api.jar" ] || [ ! -f "build/libs/shizuku-provider.jar" ]; then
+    echo -e "  [📥] Downloading Shizuku API libraries..."
+    curl -sSL -o build/libs/api.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/api/13.1.5/api-13.1.5.aar"
+    curl -sSL -o build/libs/provider.aar "https://repo1.maven.org/maven2/dev/rikka/shizuku/provider/13.1.5/provider-13.1.5.aar"
+    unzip -p build/libs/api.aar classes.jar > build/libs/shizuku-api.jar
+    unzip -p build/libs/provider.aar classes.jar > build/libs/shizuku-provider.jar
+    echo -e "  [✔] Shizuku libraries extracted!"
+fi
+
 if command -v javac >/dev/null 2>&1 && [ -f "$ANDROID_JAR" ] && [ -n "$JAVA_FILES" ]; then
     echo -e "  [✔] Compiling Java source files with javac (Java 8 bytecode)..."
-    javac -encoding UTF-8 -source 1.8 -target 1.8 -cp "$ANDROID_JAR" -d build/obj $JAVA_FILES
+    javac -encoding UTF-8 -source 1.8 -target 1.8 -cp "$ANDROID_JAR:build/libs/shizuku-api.jar:build/libs/shizuku-provider.jar" -d build/obj $JAVA_FILES
 fi
 
 # Convert compiled class files to Dalvik bytecode (classes.dex)
@@ -200,10 +211,10 @@ if [ -n "$CLASS_FILES" ]; then
     mkdir -p build/dex
     if [ "$D8_CMD" = "d8" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using d8..."
-        d8 --lib "$ANDROID_JAR" --output build/dex $CLASS_FILES
+        d8 --lib "$ANDROID_JAR" --output build/dex $CLASS_FILES build/libs/shizuku-api.jar build/libs/shizuku-provider.jar
     elif [ "$D8_CMD" = "dx" ]; then
         echo -e "  [✔] Converting bytecode to classes.dex using dx..."
-        dx --dex --output=build/dex/classes.dex build/obj
+        dx --dex --output=build/dex/classes.dex build/obj build/libs/shizuku-api.jar build/libs/shizuku-provider.jar
     fi
 fi
 
