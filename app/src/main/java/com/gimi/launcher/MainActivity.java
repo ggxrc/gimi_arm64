@@ -742,7 +742,7 @@ public class MainActivity extends Activity {
 
         if (layerEnabled == 1 && currentGpuApp != null && !currentGpuApp.isEmpty()) {
             boolean hasGles = glesLayers != null && glesLayers.contains("libgimi_arm64.so");
-            boolean hasVk = vkLayers != null && vkLayers.contains("libgimi_arm64.so");
+            boolean hasVk = vkLayers != null && vkLayers.contains("VK_LAYER_GIMI_ARM64");
             String modeStr = (hasGles && hasVk) ? "Vulkan + OpenGL ES" : (hasGles ? "OpenGL ES (EGL)" : "Vulkan");
 
             vulkanStatusText.setText("🟢 ACTIVE (" + modeStr + " Layer Injected for " + currentGpuApp + ")");
@@ -775,13 +775,13 @@ public class MainActivity extends Activity {
             Settings.Global.putString(getContentResolver(), "gpu_debug_layer_app", getPackageName());
 
             if (selectedApiIndex == 0) { // Dual Auto
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so:" + libTarget);
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so:" + libTarget);
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "VK_LAYER_GIMI_ARM64");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
             } else if (selectedApiIndex == 1) { // OpenGL ES
                 Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so:" + libTarget);
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
             } else { // Vulkan
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so:" + libTarget);
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "VK_LAYER_GIMI_ARM64");
                 Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "");
             }
 
