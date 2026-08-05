@@ -696,18 +696,22 @@ public class MainActivity extends Activity {
 
     private void doInjectAndLaunchGame() {
         try {
+            String nativeLibDir = getApplicationInfo().nativeLibraryDir;
+            File nativeLibFile = new File(nativeLibDir, "libgimi_arm64.so");
+            String libTarget = nativeLibFile.exists() ? nativeLibFile.getAbsolutePath() : "libgimi_arm64.so";
+
             Settings.Global.putInt(getContentResolver(), "enable_gpu_debug_layers", 1);
             Settings.Global.putString(getContentResolver(), "gpu_debug_app", selectedPackage);
             Settings.Global.putString(getContentResolver(), "gpu_debug_layer_app", getPackageName());
 
             if (selectedApiIndex == 0) { // Dual Auto
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so");
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so:" + libTarget);
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so:" + libTarget);
             } else if (selectedApiIndex == 1) { // OpenGL ES
                 Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "libgimi_arm64.so:" + libTarget);
             } else { // Vulkan
-                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so");
+                Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "libgimi_arm64.so:" + libTarget);
                 Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "");
             }
 
@@ -724,7 +728,7 @@ public class MainActivity extends Activity {
 
             Intent launchIntent = getPackageManager().getLaunchIntentForPackage(selectedPackage);
             if (launchIntent != null) {
-                outputLogText.setText("System Output: Layer injected! Launching game " + selectedPackage + "...");
+                outputLogText.setText("System Output: Injected!\nLib: " + libTarget + " (Exists: " + nativeLibFile.exists() + ")\nLaunching " + selectedPackage + "...");
                 outputLogText.setTextColor(Color.parseColor("#00E676"));
                 Toast.makeText(this, "Injetado com sucesso! Abrindo o jogo...", Toast.LENGTH_SHORT).show();
                 startActivity(launchIntent);

@@ -28,6 +28,7 @@
 
     <application
         android:allowBackup="true"
+        android:extractNativeLibs="true"
         android:icon="@drawable/ic_launcher"
         android:label="GIMI Launcher"
         android:requestLegacyExternalStorage="true"

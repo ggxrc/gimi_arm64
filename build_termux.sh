@@ -229,6 +229,10 @@ if [ ! -f "build/apk_contents/AndroidManifest.xml" ]; then
 fi
 cp build/dex/classes.dex build/apk_contents/ 2>/dev/null || true
 cp build/libgimi_arm64.so build/apk_contents/lib/arm64-v8a/
+if [ -d "app/src/main/assets" ]; then
+    mkdir -p build/apk_contents/assets
+    cp -r app/src/main/assets/* build/apk_contents/assets/ 2>/dev/null || true
+fi
 if [ -f "/data/data/com.termux/files/usr/lib/libc++_shared.so" ]; then
     cp /data/data/com.termux/files/usr/lib/libc++_shared.so build/apk_contents/lib/arm64-v8a/ 2>/dev/null || true
 fi
