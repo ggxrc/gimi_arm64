@@ -639,6 +639,27 @@ public class MainActivity extends Activity {
             }
         });
 
+        Button patchApkBtn = new Button(this);
+        patchApkBtn.setText("📦 AUTO-PATCH GAME APK (Bypass SELinux)");
+        patchApkBtn.setTextSize(13f);
+        patchApkBtn.setAllCaps(true);
+        patchApkBtn.setTypeface(null, Typeface.BOLD);
+        patchApkBtn.setTextColor(Color.WHITE);
+        patchApkBtn.setBackground(createButtonDrawable("#7C4DFF"));
+
+        LinearLayout.LayoutParams patchParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            110
+        );
+        patchParams.setMargins(0, 4, 0, 8);
+        patchApkBtn.setLayoutParams(patchParams);
+        patchApkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doPatchGameApk();
+            }
+        });
+
         revertBtn = new Button(this);
         revertBtn.setText("🛑 RESET / DESATIVAR VULKAN LAYER");
         revertBtn.setTextSize(13f);
@@ -672,6 +693,7 @@ public class MainActivity extends Activity {
         gameCard.addView(pkgLabel);
         gameCard.addView(gameSpinner);
         gameCard.addView(injectBtn);
+        gameCard.addView(patchApkBtn);
         gameCard.addView(revertBtn);
         gameCard.addView(outputLogText);
         layout.addView(gameCard);
@@ -773,6 +795,46 @@ public class MainActivity extends Activity {
             outputLogText.setText("Error: " + e.getMessage());
             outputLogText.setTextColor(Color.parseColor("#FF5252"));
         }
+    }
+
+    private void doPatchGameApk() {
+        outputLogText.setText("System Output: Iniciando Auto-Patch do APK " + selectedPackage + "...");
+        outputLogText.setTextColor(Color.parseColor("#80D8FF"));
+
+        com.gimi.launcher.patcher.GimiApkPatcher.patchTargetGame(this, selectedPackage, new com.gimi.launcher.patcher.GimiApkPatcher.PatchCallback() {
+            @Override
+            public void onProgress(final String status) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        outputLogText.setText("System Output: " + status);
+                    }
+                });
+            }
+
+            @Override
+            public void onSuccess(final File patchedApk) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        outputLogText.setText("System Output: Patch concluído!\nSalvo em: " + patchedApk.getAbsolutePath());
+                        outputLogText.setTextColor(Color.parseColor("#00E676"));
+                        Toast.makeText(MainActivity.this, "Patch concluído! Salvo em /sdcard/GIMI/PatchedGames/", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final String errorMessage) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        outputLogText.setText("System Output Error: " + errorMessage);
+                        outputLogText.setTextColor(Color.parseColor("#FF5252"));
+                    }
+                });
+            }
+        });
     }
 
     private void doRevertLayer() {
