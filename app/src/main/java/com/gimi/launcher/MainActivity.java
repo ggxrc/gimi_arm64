@@ -536,11 +536,16 @@ public class MainActivity extends Activity {
         shizukuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean ok = com.gimi.launcher.service.ShizukuManager.grantSecureSettingsViaShizuku(MainActivity.this);
-                if (ok) {
-                    Toast.makeText(MainActivity.this, "Permissão concedida via Shizuku! ✔", Toast.LENGTH_LONG).show();
+                if (checkSelfPermission("moe.shizuku.manager.permission.API_V23") != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{"moe.shizuku.manager.permission.API_V23"}, 1002);
+                    Toast.makeText(MainActivity.this, "Por favor, autorize o acesso no pop-up do Shizuku.", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(MainActivity.this, "Abra o app do Shizuku e garanta que o serviço está em execução.", Toast.LENGTH_LONG).show();
+                    boolean ok = com.gimi.launcher.service.ShizukuManager.grantSecureSettingsViaShizuku(MainActivity.this);
+                    if (ok) {
+                        Toast.makeText(MainActivity.this, "Permissão WRITE_SECURE_SETTINGS concedida via Shizuku! ✔", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Falha ao rodar comando do Shizuku. Verifique se o app Shizuku está aberto e ativo.", Toast.LENGTH_LONG).show();
+                    }
                 }
                 refreshDashboardStatus();
             }
