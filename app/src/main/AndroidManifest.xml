@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.gimi.launcher"
-    android:versionCode="3"
-    android:versionName="1.1.1">
+    android:versionCode="4"
+    android:versionName="1.2.0">
 
     <uses-sdk
         android:minSdkVersion="29"
@@ -20,10 +20,11 @@
          Must be granted via: adb shell pm grant com.gimi.launcher android.permission.WRITE_SECURE_SETTINGS -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
-    <!-- Foreground Service for persistent notification with hot-reload & dump controls -->
+    <!-- Foreground Service & Overlay permissions for interactive in-game controls -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -46,5 +47,9 @@
             android:name=".service.GimiForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name=".service.GimiOverlayService"
+            android:exported="false" />
     </application>
 </manifest>
