@@ -150,6 +150,15 @@ public class MainActivity extends Activity {
     }
 
     private void checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                try {
+                    requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 101);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 try {

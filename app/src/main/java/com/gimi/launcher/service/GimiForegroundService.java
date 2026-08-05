@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.Toast;
@@ -24,8 +25,7 @@ import com.gimi.launcher.jni.GimiNativeBridge;
  *   ⚡ Recarregar Mods  — triggers nativeReloadMods() to refresh .ini and textures
  *   📸 Dump Hashes      — toggles nativeSetDumpEnabled() for hash extraction
  *
- * The notification remains active until the user explicitly reverts the layer
- * or stops the service from the app.
+ * Designed with defensive exception handling to prevent crashing on Android 12-16.
  */
 public class GimiForegroundService extends Service {
 
@@ -41,14 +41,29 @@ public class GimiForegroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        createNotificationChannel();
-        registerActionReceiver();
+        try {
+            createNotificationChannel();
+            registerActionReceiver();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Notification notification = buildNotification();
-        startForeground(NOTIFICATION_ID, notification);
+        try {
+            Notification notification = buildNotification();
+            if (Build.VERSION.SDK_INT >= 34) {
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            } else if (Build.VERSION.SDK_INT >= 29) {
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            } else {
+                startForeground(NOTIFICATION_ID, notification);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            // Catch any ForegroundServiceStartNotAllowedException / SecurityException gracefully
+        }
         return START_STICKY;
     }
 
@@ -109,7 +124,7 @@ public class GimiForegroundService extends Service {
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        String dumpLabel = dumpEnabled ? "\uD83D\uDCF8 Dump ON" : "\uD83D\uDCF8 Dump OFF";
+        String dumpLabel = dumpEnabled ? "📸 Dump ON" : "📸 Dump OFF";
 
         Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -137,6 +152,7 @@ public class GimiForegroundService extends Service {
         actionReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                if (intent == null) return;
                 String action = intent.getAction();
                 if (ACTION_HOT_RELOAD.equals(action)) {
                     GimiNativeBridge.reloadMods();
@@ -145,13 +161,16 @@ public class GimiForegroundService extends Service {
                     dumpEnabled = !dumpEnabled;
                     GimiNativeBridge.setDumpEnabled(dumpEnabled);
                     Toast.makeText(context,
-                        dumpEnabled ? "\uD83D\uDCF8 Dump ATIVADO → /sdcard/GIMI/Dump/" : "\uD83D\uDCF8 Dump DESATIVADO",
+                        dumpEnabled ? "📸 Dump ATIVADO → /sdcard/GIMI/Dump/" : "📸 Dump DESATIVADO",
                         Toast.LENGTH_SHORT
                     ).show();
-                    // Update notification to reflect new dump state
-                    NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    if (nm != null) {
-                        nm.notify(NOTIFICATION_ID, buildNotification());
+                    try {
+                        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        if (nm != null) {
+                            nm.notify(NOTIFICATION_ID, buildNotification());
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
                 }
             }
