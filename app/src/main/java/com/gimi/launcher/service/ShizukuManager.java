@@ -29,27 +29,11 @@ public class ShizukuManager {
     public static String binderError = "None";
 
     public static boolean checkAndForceBinder(Context context) {
-        if (Shizuku.pingBinder()) return true;
-        try {
-            android.net.Uri uri = android.net.Uri.parse("content://moe.shizuku.manager.shizuku");
-            android.os.Bundle bundle = context.getContentResolver().call(uri, "getBinder", null, null);
-            if (bundle != null) {
-                android.os.IBinder binder = bundle.getBinder("binder");
-                if (binder != null && binder.isBinderAlive()) {
-                    java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod("setBinder", android.os.IBinder.class);
-                    method.setAccessible(true);
-                    method.invoke(null, binder);
-                    binderError = "SUCCESS";
-                    return true;
-                } else {
-                    binderError = "Binder is null or dead";
-                }
-            } else {
-                binderError = "Bundle from getBinder call was null";
-            }
-        } catch (Throwable e) {
-            binderError = "Exception in checkAndForceBinder: " + e.getMessage() + "\n" + android.util.Log.getStackTraceString(e);
+        if (Shizuku.pingBinder()) {
+            binderError = "SUCCESS";
+            return true;
         }
+        binderError = "Shizuku.pingBinder() is false. The provider is registered in manifest, but binder was not received yet. Try again in 2 seconds.";
         return false;
     }
 
