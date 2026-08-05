@@ -26,9 +26,29 @@ public class ShizukuManager {
         }
     }
 
+    public static boolean checkAndForceBinder(Context context) {
+        if (Shizuku.pingBinder()) return true;
+        try {
+            android.net.Uri uri = android.net.Uri.parse("content://moe.shizuku.manager.shizuku");
+            android.os.Bundle bundle = context.getContentResolver().call(uri, "getBinder", null, null);
+            if (bundle != null) {
+                android.os.IBinder binder = bundle.getBinder("binder");
+                if (binder != null && binder.isBinderAlive()) {
+                    java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod("setBinder", android.os.IBinder.class);
+                    method.setAccessible(true);
+                    method.invoke(null, binder);
+                    return true;
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static boolean isShizukuRunning(Context context) {
         try {
-            return Shizuku.pingBinder();
+            return checkAndForceBinder(context);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -36,6 +56,7 @@ public class ShizukuManager {
     }
 
     public static String grantSecureSettingsViaShizuku(Context context) {
+        checkAndForceBinder(context);
         String pkg = context.getPackageName();
         String[] cmd = new String[]{
             "pm", "grant", pkg, "android.permission.WRITE_SECURE_SETTINGS"
@@ -44,6 +65,7 @@ public class ShizukuManager {
     }
 
     public static String injectVulkanLayerViaShizuku(Context context, String targetPackage) {
+        checkAndForceBinder(context);
         String res = executeAdbCommandWithResult(new String[]{"settings", "put", "global", "enable_gpu_debug_layers", "1"});
         if (!"SUCCESS".equals(res)) return res;
         
@@ -61,9 +83,6 @@ public class ShizukuManager {
 
     public static String executeAdbCommandWithResult(String[] command) {
         try {
-            if (!Shizuku.pingBinder()) {
-                return "ERROR: Shizuku.pingBinder() returned false (Service not running or binder not received yet)";
-            }
             java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod(
                 "newProcess", String[].class, String[].class, String.class
             );
