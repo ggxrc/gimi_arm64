@@ -83,6 +83,9 @@ public class ShizukuManager {
 
     public static String executeAdbCommandWithResult(String[] command) {
         try {
+            if (!Shizuku.pingBinder()) {
+                return "ERROR: Shizuku binder is not active or authorized. Please open Shizuku and authorize GIMI Launcher.";
+            }
             java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod(
                 "newProcess", String[].class, String[].class, String.class
             );

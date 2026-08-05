@@ -22,6 +22,8 @@
         <package android:name="com.miHoYo.GI.samsung" />
         <package android:name="com.yuanshen.site" />
         <package android:name="com.miHoYo.ys.bilibili" />
+        <package android:name="moe.shizuku.privileged.api" />
+        <package android:name="moe.shizuku.manager" />
     </queries>
 
     <!-- WRITE_SECURE_SETTINGS for Vulkan debug layer injection via Settings.Global API.
