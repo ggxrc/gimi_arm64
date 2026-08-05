@@ -19,6 +19,7 @@
 #include "textures/image_state_tracker.h"  // Phase 4: texture tracking
 #include "textures/texture_swapper.h"      // Phase 4: texture override
 #include "utils/logger.h"
+#include "xxhash.h"
 
 #include <vulkan/vk_layer.h>   // VkNegotiateLayerInterface, CURRENT_LOADER_LAYER_INTERFACE_VERSION
 #include <cstring>
@@ -322,22 +323,44 @@ gimi_vkCmdDrawIndexed(VkCommandBuffer commandBuffer,
     if (state && !state->vertex_buffers.empty()) {
         auto& vb0 = state->vertex_buffers[0];
 
-        // Lazy hash computation (only on first draw with this buffer)
-        if (vb0.hash == 0 && vb0.buffer != VK_NULL_HANDLE) {
-            auto cached = HashRegistry::instance().get_buffer(vb0.buffer);
-            if (cached.has_value()) {
-                vb0.hash = cached->hash32;
-            }
-        }
+        if (vb0.buffer != VK_NULL_HANDLE) {
+            // Lazy hash computation on first draw call with this buffer
+            if (vb0.hash == 0) {
+                struct BufFingerprint {
+                    VkBuffer buffer;
+                    VkDeviceSize offset;
+                } fp{vb0.buffer, vb0.offset};
 
-        // Attempt mesh swap
-        if (vb0.hash != 0) {
-            auto result = MeshSwapper::instance().try_swap(vb0.hash);
-            if (result.should_override) {
-                indexCount   = result.index_count;
-                firstIndex   = result.first_index;
-                vertexOffset = static_cast<int32_t>(result.vertex_offset);
-                LOGD("gimi_vkCmdDrawIndexed: swapped mesh for hash 0x%08X", vb0.hash);
+                uint64_t h64 = XXH64(&fp, sizeof(fp), 0);
+                vb0.hash = static_cast<uint32_t>(h64 & 0xFFFFFFFF);
+                HashRegistry::instance().store_buffer(vb0.buffer, HashEntry{h64, vb0.hash});
+
+                LOGR("DrawCall: VK Buffer %p (offset %llu) → hash32=0x%08X (indices: %u)",
+                     (void*)vb0.buffer, static_cast<unsigned long long>(vb0.offset), vb0.hash, indexCount);
+
+                // Dump mode: save buffer descriptor to /sdcard/GIMI/Dump/
+                if (ResourceHashEngine::instance().is_dump_enabled()) {
+                    char dump_filename[256];
+                    snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", vb0.hash);
+                    FILE* f = fopen(dump_filename, "wb");
+                    if (f) {
+                        fprintf(f, "; GIMI Dump: Hash 0x%08X | VkBuffer %p | Offset %llu | IndexCount %u\n",
+                                vb0.hash, (void*)vb0.buffer, static_cast<unsigned long long>(vb0.offset), indexCount);
+                        fclose(f);
+                        LOGR("DUMP: Extracted buffer 0x%08X.buf → %s", vb0.hash, dump_filename);
+                    }
+                }
+            }
+
+            // Attempt mesh swap
+            if (vb0.hash != 0) {
+                auto result = MeshSwapper::instance().try_swap(vb0.hash);
+                if (result.should_override) {
+                    indexCount   = result.index_count;
+                    firstIndex   = result.first_index;
+                    vertexOffset = static_cast<int32_t>(result.vertex_offset);
+                    LOGR("gimi_vkCmdDrawIndexed: SWAPPED mesh for hash 0x%08X!", vb0.hash);
+                }
             }
         }
     }

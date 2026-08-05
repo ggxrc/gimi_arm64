@@ -6,6 +6,7 @@
 #include "mesh/mesh_swapper.h"
 #include "textures/texture_swapper.h"
 #include "utils/logger.h"
+#include "hash/resource_hash_engine.h"
 
 #if __has_include(<dobby.h>)
 #   include <dobby.h>
@@ -107,10 +108,28 @@ static void hooked_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr si
 
 static void try_swap_and_draw(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei instancecount, bool is_instanced) {
     uint32_t active_vb_hash = 0;
-    {
+    if (s_active_vbo != 0) {
         std::lock_guard<std::mutex> lock(s_hash_mutex);
         auto it = s_buffer_hashes.find(s_active_vbo);
-        if (it != s_buffer_hashes.end()) active_vb_hash = it->second;
+        if (it != s_buffer_hashes.end()) {
+            active_vb_hash = it->second;
+        } else {
+            active_vb_hash = static_cast<uint32_t>(XXH64(&s_active_vbo, sizeof(s_active_vbo), 0) & 0xFFFFFFFF);
+            s_buffer_hashes[s_active_vbo] = active_vb_hash;
+
+            LOGR("GLES DrawCall: VBO %u → hash32=0x%08X (indices: %d)", s_active_vbo, active_vb_hash, count);
+
+            if (gimi::ResourceHashEngine::instance().is_dump_enabled()) {
+                char dump_filename[256];
+                snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", active_vb_hash);
+                FILE* f = fopen(dump_filename, "wb");
+                if (f) {
+                    fprintf(f, "; GIMI GLES Dump: Hash 0x%08X | VBO %u | IndexCount %d\n", active_vb_hash, s_active_vbo, count);
+                    fclose(f);
+                    LOGR("DUMP: Extracted GLES buffer 0x%08X.buf → %s", active_vb_hash, dump_filename);
+                }
+            }
+        }
     }
 
     if (active_vb_hash != 0) {
