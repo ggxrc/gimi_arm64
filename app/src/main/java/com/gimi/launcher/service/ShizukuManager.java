@@ -26,6 +26,8 @@ public class ShizukuManager {
         }
     }
 
+    public static String binderError = "None";
+
     public static boolean checkAndForceBinder(Context context) {
         if (Shizuku.pingBinder()) return true;
         try {
@@ -37,11 +39,16 @@ public class ShizukuManager {
                     java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod("setBinder", android.os.IBinder.class);
                     method.setAccessible(true);
                     method.invoke(null, binder);
+                    binderError = "SUCCESS";
                     return true;
+                } else {
+                    binderError = "Binder is null or dead";
                 }
+            } else {
+                binderError = "Bundle from getBinder call was null";
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            binderError = "Exception in checkAndForceBinder: " + e.getMessage() + "\n" + android.util.Log.getStackTraceString(e);
         }
         return false;
     }
@@ -84,7 +91,8 @@ public class ShizukuManager {
     public static String executeAdbCommandWithResult(String[] command) {
         try {
             if (!Shizuku.pingBinder()) {
-                return "ERROR: Shizuku binder is not active or authorized. Please open Shizuku and authorize GIMI Launcher.";
+                return "ERROR: Shizuku binder is not active or authorized. Please open Shizuku and authorize GIMI Launcher.\n" +
+                       "Binder Diagnostics: " + binderError;
             }
             java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod(
                 "newProcess", String[].class, String[].class, String.class
