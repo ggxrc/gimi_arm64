@@ -520,11 +520,38 @@ public class MainActivity extends Activity {
             }
         });
 
+        Button shizukuBtn = new Button(this);
+        shizukuBtn.setText("⚡ Conceder Permissão Auto via Shizuku");
+        shizukuBtn.setTextSize(12f);
+        shizukuBtn.setAllCaps(false);
+        shizukuBtn.setBackground(createButtonDrawable("#00B0FF"));
+        shizukuBtn.setTextColor(Color.WHITE);
+        shizukuBtn.setTypeface(null, Typeface.BOLD);
+        LinearLayout.LayoutParams shizukuParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        shizukuParams.setMargins(0, 8, 0, 8);
+        shizukuBtn.setLayoutParams(shizukuParams);
+        shizukuBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean ok = com.gimi.launcher.service.ShizukuManager.grantSecureSettingsViaShizuku(MainActivity.this);
+                if (ok) {
+                    Toast.makeText(MainActivity.this, "Permissão concedida via Shizuku! ✔", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Abra o app do Shizuku e garanta que o serviço está em execução.", Toast.LENGTH_LONG).show();
+                }
+                refreshDashboardStatus();
+            }
+        });
+
         adbCard.addView(adbTitle);
         adbCard.addView(adbStatusText);
         adbCard.addView(adbInstructionText);
         adbCard.addView(adbCommandBox);
         adbCard.addView(btnRow);
+        adbCard.addView(shizukuBtn);
         adbCard.addView(toggleManualBtn);
         adbCard.addView(manualCommandsBox);
         layout.addView(adbCard);
