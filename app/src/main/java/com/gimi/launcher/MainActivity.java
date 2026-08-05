@@ -540,11 +540,21 @@ public class MainActivity extends Activity {
                     requestPermissions(new String[]{"moe.shizuku.manager.permission.API_V23"}, 1002);
                     Toast.makeText(MainActivity.this, "Por favor, autorize o acesso no pop-up do Shizuku.", Toast.LENGTH_LONG).show();
                 } else {
-                    boolean ok = com.gimi.launcher.service.ShizukuManager.grantSecureSettingsViaShizuku(MainActivity.this);
-                    if (ok) {
+                    String res = com.gimi.launcher.service.ShizukuManager.grantSecureSettingsViaShizuku(MainActivity.this);
+                    if ("SUCCESS".equals(res)) {
                         Toast.makeText(MainActivity.this, "Permissão WRITE_SECURE_SETTINGS concedida via Shizuku! ✔", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Falha ao rodar comando do Shizuku. Verifique se o app Shizuku está aberto e ativo.", Toast.LENGTH_LONG).show();
+                        new android.app.AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Erro de Execução Shizuku")
+                            .setMessage(res)
+                            .setPositiveButton("Copiar Erro", new android.content.DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(android.content.DialogInterface dialog, int which) {
+                                    copyToClipboard(res, "Detalhes do erro copiados!");
+                                }
+                            })
+                            .setNegativeButton("Fechar", null)
+                            .show();
                     }
                 }
                 refreshDashboardStatus();

@@ -35,36 +35,48 @@ public class ShizukuManager {
         return false;
     }
 
-    public static boolean grantSecureSettingsViaShizuku(Context context) {
+    public static String grantSecureSettingsViaShizuku(Context context) {
         String pkg = context.getPackageName();
         String[] cmd = new String[]{
             "pm", "grant", pkg, "android.permission.WRITE_SECURE_SETTINGS"
         };
-        return executeAdbCommand(cmd);
+        return executeAdbCommandWithResult(cmd);
     }
 
-    public static boolean injectVulkanLayerViaShizuku(Context context, String targetPackage) {
-        executeAdbCommand(new String[]{"settings", "put", "global", "enable_gpu_debug_layers", "1"});
-        executeAdbCommand(new String[]{"settings", "put", "global", "gpu_debug_app", targetPackage});
-        executeAdbCommand(new String[]{"settings", "put", "global", "gpu_debug_layer_app", context.getPackageName()});
-        executeAdbCommand(new String[]{"settings", "put", "global", "gpu_debug_layers", "VK_LAYER_GIMI_ARM64"});
-        executeAdbCommand(new String[]{"settings", "put", "global", "gpu_debug_layers_gles", "libgimi_arm64.so"});
-        return true;
+    public static String injectVulkanLayerViaShizuku(Context context, String targetPackage) {
+        String res = executeAdbCommandWithResult(new String[]{"settings", "put", "global", "enable_gpu_debug_layers", "1"});
+        if (!"SUCCESS".equals(res)) return res;
+        
+        res = executeAdbCommandWithResult(new String[]{"settings", "put", "global", "gpu_debug_app", targetPackage});
+        if (!"SUCCESS".equals(res)) return res;
+        
+        res = executeAdbCommandWithResult(new String[]{"settings", "put", "global", "gpu_debug_layer_app", context.getPackageName()});
+        if (!"SUCCESS".equals(res)) return res;
+        
+        res = executeAdbCommandWithResult(new String[]{"settings", "put", "global", "gpu_debug_layers", "VK_LAYER_GIMI_ARM64"});
+        if (!"SUCCESS".equals(res)) return res;
+        
+        return executeAdbCommandWithResult(new String[]{"settings", "put", "global", "gpu_debug_layers_gles", "libgimi_arm64.so"});
     }
 
-    public static boolean executeAdbCommand(String[] command) {
+    public static String executeAdbCommandWithResult(String[] command) {
         try {
-            if (!Shizuku.pingBinder()) return false;
+            if (!Shizuku.pingBinder()) {
+                return "ERROR: Shizuku.pingBinder() returned false (Service not running or binder not received yet)";
+            }
             java.lang.reflect.Method method = Shizuku.class.getDeclaredMethod(
                 "newProcess", String[].class, String[].class, String.class
             );
             method.setAccessible(true);
             java.lang.Process p = (java.lang.Process) method.invoke(null, command, null, null);
             int exitCode = p.waitFor();
-            return exitCode == 0;
+            if (exitCode == 0) {
+                return "SUCCESS";
+            } else {
+                return "ERROR: Process exited with code " + exitCode;
+            }
         } catch (Throwable e) {
-            e.printStackTrace();
-            return false;
+            return "EXCEPTION: " + e.getMessage() + "\n" + android.util.Log.getStackTraceString(e);
         }
     }
 }
