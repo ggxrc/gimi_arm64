@@ -160,6 +160,22 @@ public class MainActivity extends Activity {
         if (!dumpDir.exists()) {
             dumpDir.mkdirs();
         }
+        try {
+            String nativeLibDir = getApplicationInfo().nativeLibraryDir;
+            File nativeLibFile = new File(nativeLibDir, "libgimi_arm64.so");
+            File targetFile = new File("/sdcard/GIMI/libgimi_arm64.so");
+            if (nativeLibFile.exists()) {
+                java.io.InputStream in = new java.io.FileInputStream(nativeLibFile);
+                java.io.OutputStream out = new java.io.FileOutputStream(targetFile);
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+                in.close();
+                out.close();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkStoragePermission() {
@@ -464,20 +480,20 @@ public class MainActivity extends Activity {
             }
         });
 
-        String nativeLibDir = getApplicationInfo().nativeLibraryDir;
-        final String libPath = nativeLibDir + "/libgimi_arm64.so";
+        final String shortLibPath = "/data/local/tmp/libgimi_arm64.so";
 
         final String manualCmdsText = "💡 COMANDOS ADB PARA INJEÇÃO COMPLETA:\n\n" +
-            "1️⃣ Conceder Permissao:\n" +
-            "adb shell pm grant " + getPackageName() + " android.permission.WRITE_SECURE_SETTINGS\n\n" +
-            "2️⃣ Ativar GPU Layers:\n" +
+            "1️⃣ Copiar biblioteca para pasta acessível:\n" +
+            "adb shell cp /sdcard/GIMI/libgimi_arm64.so /data/local/tmp/libgimi_arm64.so\n" +
+            "adb shell chmod 755 /data/local/tmp/libgimi_arm64.so\n\n" +
+            "2️⃣ Injeção Forçada LD_PRELOAD (Bypass para Genshin):\n" +
+            "adb shell setprop wrap." + selectedPackage + " \"logwrapper " + shortLibPath + "\"\n\n" +
+            "3️⃣ Ativar GPU Layers:\n" +
             "adb shell settings put global enable_gpu_debug_layers 1\n" +
             "adb shell settings put global gpu_debug_app " + selectedPackage + "\n" +
             "adb shell settings put global gpu_debug_layer_app " + getPackageName() + "\n" +
             "adb shell settings put global gpu_debug_layers libgimi_arm64.so\n" +
             "adb shell settings put global gpu_debug_layers_gles libgimi_arm64.so\n\n" +
-            "3️⃣ Injeção Forçada LD_PRELOAD (Bypass para Genshin Store App):\n" +
-            "adb shell setprop wrap." + selectedPackage + " \"logwrapper " + libPath + "\"\n\n" +
             "🛑 Desfazer Injeção Wrap:\n" +
             "adb shell setprop wrap." + selectedPackage + " \"\"";
 
