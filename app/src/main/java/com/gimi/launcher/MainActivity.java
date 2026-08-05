@@ -67,17 +67,22 @@ public class MainActivity extends Activity {
     private LinearLayout modsListContainer;
 
     // Data
-    private final String[] packageNames = new String[]{
+    private static final String[] packageNames = new String[] {
         "com.miHoYo.GenshinImpact",
         "com.miHoYo.GI.samsung",
+        "com.miHoYo.GenshinImpact.samsung",
         "com.yuanshen.site",
+        "com.miHoYo.ys",
         "com.miHoYo.ys.bilibili"
     };
-    private final String[] baseGameNames = new String[]{
-        "Global / Play Store",
-        "Galaxy Store (Samsung)",
-        "China Server (Official)",
-        "Bilibili (China)"
+
+    private static final String[] baseGameNames = new String[] {
+        "Genshin Impact (Play Store)",
+        "Genshin Impact (Galaxy Store GI)",
+        "Genshin Impact (Galaxy Store Alt)",
+        "Genshin Impact (China Site)",
+        "Genshin Impact (China Official)",
+        "Genshin Impact (Bilibili)"
     };
     private String[] displayGameNames;
     private String selectedPackage = packageNames[0];
