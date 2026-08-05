@@ -484,7 +484,7 @@ public class MainActivity extends Activity {
 
         final String manualCmdsText = "💡 COMANDOS ADB PARA INJEÇÃO COMPLETA:\n\n" +
             "1️⃣ Copiar biblioteca para pasta acessível:\n" +
-            "adb shell cp /sdcard/GIMI/libgimi_arm64.so /data/local/tmp/libgimi_arm64.so\n" +
+            "adb shell cp /data/data/com.gimi.launcher/lib/libgimi_arm64.so /data/local/tmp/libgimi_arm64.so\n" +
             "adb shell chmod 755 /data/local/tmp/libgimi_arm64.so\n\n" +
             "2️⃣ Injeção Forçada LD_PRELOAD (Bypass para Genshin):\n" +
             "adb shell setprop wrap." + selectedPackage + " \"logwrapper " + shortLibPath + "\"\n\n" +
