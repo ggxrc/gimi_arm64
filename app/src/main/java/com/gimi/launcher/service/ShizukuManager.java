@@ -83,6 +83,9 @@ public class ShizukuManager {
             );
             method.setAccessible(true);
             java.lang.Process p = (java.lang.Process) method.invoke(null, command, null, null);
+            if (p == null) {
+                return "ERROR: Shizuku.newProcess returned null. This app might not be toggled ON in Shizuku Manager > Authorized applications.";
+            }
             int exitCode = p.waitFor();
             if (exitCode == 0) {
                 return "SUCCESS";
@@ -90,7 +93,11 @@ public class ShizukuManager {
                 return "ERROR: Process exited with code " + exitCode;
             }
         } catch (Throwable e) {
-            return "EXCEPTION: " + e.getMessage() + "\n" + android.util.Log.getStackTraceString(e);
+            Throwable cause = e;
+            if (e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null) {
+                cause = e.getCause();
+            }
+            return "EXCEPTION: " + cause.getClass().getSimpleName() + " - " + cause.getMessage() + "\n" + android.util.Log.getStackTraceString(cause);
         }
     }
 }
