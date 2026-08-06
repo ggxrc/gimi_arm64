@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // gimi_arm64 — Resource Hash Engine Implementation
 //
-// Computes xxHash64 digests and supports dump mode for mod creation.
+// Computes xxHash64 digests.
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include "hash/resource_hash_engine.h"

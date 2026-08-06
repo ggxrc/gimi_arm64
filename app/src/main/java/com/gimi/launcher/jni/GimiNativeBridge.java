@@ -19,7 +19,7 @@ public class GimiNativeBridge {
     public static native int nativeInjectLayer(String packageName);
     public static native int nativeGetLayerStatus();
 
-    // ─── Phase 10: Hot-Reload, Dump Mode, File Logger ────────────────────────
+    // ─── Hot-Reload / Mod Manager Control ────────────────────────────────────
     public static native void nativeReloadMods();
 
     // ─── Public API wrappers ─────────────────────────────────────────────────

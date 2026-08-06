@@ -6,9 +6,6 @@
 // caches results in HashRegistry, and returns the 3dmigoto-compatible
 // truncated uint32_t hash for ModDatabase lookups.
 //
-// Dump mode: When enabled, saves original buffer/image data to
-// /sdcard/GIMI/Dump/ for mod creation and hash identification.
-//
 // Anti-stutter contract:
 //   - Buffer hashing samples at most GIMI_HASH_SAMPLE_BYTES bytes.
 //   - Image hashing uses metadata fingerprinting only (no VRAM readback).
