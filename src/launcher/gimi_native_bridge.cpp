@@ -5,8 +5,6 @@
 //   - Mod scanning and toggling
 //   - Vulkan Layer injection
 //   - Hot-reload (cache invalidation + mod rescan)
-//   - Dump mode (save original hashes to /sdcard/GIMI/Dump/)
-//   - File logger init
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include <jni.h>
@@ -146,21 +144,6 @@ Java_com_gimi_launcher_jni_GimiNativeBridge_nativeReloadMods(JNIEnv*, jobject) {
     gimi::ResourceHashEngine::instance().invalidate_caches();
     gimi::ModManagerService::instance().reload();
     LOGR("HOT-RELOAD: Mods reloaded successfully");
-}
-
-// ─── Dump Mode: enable/disable hash dumping ──────────────────────────────────
-JNIEXPORT void JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridge_nativeSetDumpEnabled(JNIEnv*, jobject, jboolean enabled) {
-    bool val = (enabled == JNI_TRUE);
-    gimi::ResourceHashEngine::instance().set_dump_enabled(val);
-    LOGR("DUMP MODE: %s", val ? "ENABLED — saving to /sdcard/GIMI/Dump/" : "DISABLED");
-}
-
-// ─── File Logger: initialize render log file ─────────────────────────────────
-JNIEXPORT void JNICALL
-Java_com_gimi_launcher_jni_GimiNativeBridge_nativeInitLogger(JNIEnv*, jobject) {
-    gimi::FileLogger::instance().init("/sdcard/GIMI/gimi_render.log");
-    LOGR("File logger initialized — writing to /sdcard/GIMI/gimi_render.log");
 }
 
 } // extern "C"

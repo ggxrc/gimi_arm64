@@ -30,11 +30,7 @@
          Must be granted via: adb shell pm grant com.gimi.launcher android.permission.WRITE_SECURE_SETTINGS -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
-    <!-- Foreground Service & Overlay permissions for interactive in-game controls -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
 
     <application
         android:allowBackup="true"
@@ -54,14 +50,7 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".service.GimiForegroundService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
 
-        <service
-            android:name=".service.GimiOverlayService"
-            android:exported="false" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

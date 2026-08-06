@@ -118,17 +118,6 @@ static void try_swap_and_draw(GLenum mode, GLsizei count, GLenum type, const voi
             s_buffer_hashes[s_active_vbo] = active_vb_hash;
 
             LOGR("GLES DrawCall: VBO %u → hash32=0x%08X (indices: %d)", s_active_vbo, active_vb_hash, count);
-
-            if (gimi::ResourceHashEngine::instance().is_dump_enabled()) {
-                char dump_filename[256];
-                snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", active_vb_hash);
-                FILE* f = fopen(dump_filename, "wb");
-                if (f) {
-                    fprintf(f, "; GIMI GLES Dump: Hash 0x%08X | VBO %u | IndexCount %d\n", active_vb_hash, s_active_vbo, count);
-                    fclose(f);
-                    LOGR("DUMP: Extracted GLES buffer 0x%08X.buf → %s", active_vb_hash, dump_filename);
-                }
-            }
         }
     }
 

@@ -21,8 +21,6 @@ public class GimiNativeBridge {
 
     // ─── Phase 10: Hot-Reload, Dump Mode, File Logger ────────────────────────
     public static native void nativeReloadMods();
-    public static native void nativeSetDumpEnabled(boolean enabled);
-    public static native void nativeInitLogger();
 
     // ─── Public API wrappers ─────────────────────────────────────────────────
     public static List<ModInfo> scanMods(String path) {
@@ -70,19 +68,5 @@ public class GimiNativeBridge {
         }
     }
 
-    public static void setDumpEnabled(boolean enabled) {
-        try {
-            nativeSetDumpEnabled(enabled);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
 
-    public static void initLogger() {
-        try {
-            nativeInitLogger();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
 }

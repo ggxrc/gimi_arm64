@@ -337,19 +337,6 @@ gimi_vkCmdDrawIndexed(VkCommandBuffer commandBuffer,
 
                 LOGR("DrawCall: VK Buffer %p (offset %llu) → hash32=0x%08X (indices: %u)",
                      (void*)vb0.buffer, static_cast<unsigned long long>(vb0.offset), vb0.hash, indexCount);
-
-                // Dump mode: save buffer descriptor to /sdcard/GIMI/Dump/
-                if (ResourceHashEngine::instance().is_dump_enabled()) {
-                    char dump_filename[256];
-                    snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", vb0.hash);
-                    FILE* f = fopen(dump_filename, "wb");
-                    if (f) {
-                        fprintf(f, "; GIMI Dump: Hash 0x%08X | VkBuffer %p | Offset %llu | IndexCount %u\n",
-                                vb0.hash, (void*)vb0.buffer, static_cast<unsigned long long>(vb0.offset), indexCount);
-                        fclose(f);
-                        LOGR("DUMP: Extracted buffer 0x%08X.buf → %s", vb0.hash, dump_filename);
-                    }
-                }
             }
 
             // Attempt mesh swap

@@ -103,17 +103,6 @@ static void gimi_glBufferData(GLenum target, GLsizeiptr size, const void* data, 
         }
 
         LOGR("GLES glBufferData: VBO %u (%zu bytes) → hash32=0x%08X", s_current_vbo, size, hash32);
-
-        if (ResourceHashEngine::instance().is_dump_enabled()) {
-            char dump_filename[256];
-            snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", hash32);
-            FILE* f = fopen(dump_filename, "wb");
-            if (f) {
-                fwrite(data, 1, sample_size, f);
-                fclose(f);
-                LOGR("DUMP: Saved GLES VBO 0x%08X.buf (%zu bytes) → %s", hash32, sample_size, dump_filename);
-            }
-        }
     }
     if (real_glBufferData) real_glBufferData(target, size, data, usage);
 }
@@ -136,19 +125,6 @@ static void gimi_glDrawElements(GLenum mode, GLsizei count, GLenum type, const v
     }
 
     if (active_hash != 0) {
-        LOGR("GLES DrawCall: VBO %u → hash32=0x%08X (indices: %d)", current_vbo, active_hash, count);
-
-        if (ResourceHashEngine::instance().is_dump_enabled()) {
-            char dump_filename[256];
-            snprintf(dump_filename, sizeof(dump_filename), "/sdcard/GIMI/Dump/0x%08X.buf", active_hash);
-            FILE* f = fopen(dump_filename, "wb");
-            if (f) {
-                fprintf(f, "; GIMI GLES Dump: Hash 0x%08X | VBO %u | IndexCount %d\n", active_hash, current_vbo, count);
-                fclose(f);
-                LOGR("DUMP: Extracted GLES buffer 0x%08X.buf → %s", active_hash, dump_filename);
-            }
-        }
-
         auto result = MeshSwapper::instance().try_swap(active_hash);
         if (result.should_override) {
             LOGR("GLES MeshSwapper: SWAPPED mesh for hash 0x%08X!", active_hash);
