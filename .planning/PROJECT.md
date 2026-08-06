@@ -12,15 +12,15 @@ Interceptar e substituir recursos gráficos (modelos, texturas e shaders) de for
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Suporte a injeção via Vulkan Layer / Graphics Hooking em ARM64 no Android (Validated in Phase 1 & 8.6)
+- [x] Parsing e execução de arquivos de configuração `.ini` do 3dmigoto (Orfix.ini, Txfix.ini e overrides) (Validated in Phase 2)
+- [x] Interceptação e substituição de Vertex Buffers, Index Buffers e Shaders (Validated in Phase 3)
+- [x] Suporte a substituição e conversão de texturas (DDS / BC7 para formatos móveis ASTC/ETC2) (Validated in Phase 4)
+- [x] Interceptação puramente não-destrutiva no pipeline gráfico para evitar detecção e banimentos (Validated in Phase 1 & 8)
 
 ### Active
 
-- [ ] Suporte a injeção via Vulkan Layer / Graphics Hooking em ARM64 no Android
-- [ ] Parsing e execução de arquivos de configuração `.ini` do 3dmigoto (Orfix.ini, Txfix.ini e overrides)
-- [ ] Interceptação e substituição de Vertex Buffers, Index Buffers e Shaders
-- [ ] Suporte a substituição e conversão de texturas (DDS / BC7 para formatos móveis ASTC/ETC2)
-- [ ] Interceptação puramente não-destrutiva no pipeline gráfico para evitar detecção e banimentos
+(None - all core requirements successfully delivered and validated)
 
 ### Out of Scope
 
@@ -30,7 +30,7 @@ Interceptar e substituir recursos gráficos (modelos, texturas e shaders) de for
 
 ## Context
 
-O 3dmigoto é a base do GIMI no PC (Windows DirectX 11), permitindo a comunidade criar mods visuais e correções de iluminação/shader (Orfix/Txfix). Trazer essa capacidade para dispositivos móveis Android exige interceptar a API gráfica nativa (Vulkan / OpenGL ES em ARM64) sem violar a integridade do pacote do jogo original.
+O 3dmigoto é a base do GIMI no PC (Windows DirectX 11), permitindo a comunidade criar mods visuais e correções de iluminação/shader (Orfix/Txfix). Trazer essa capacidade para dispositivos móveis Android exige interceptar a API gráfica nativa (Vulkan / OpenGL ES em ARM64) sem violar a integridade do pacote do jogo original. Com a conclusão de todas as 10 fases planejadas, a interceptação Vulkan/GLES, o JNI bridge, o launcher minimalista escuro e a documentação bilíngue foram completamente consolidados e validados.
 
 ## Constraints
 
@@ -42,8 +42,10 @@ O 3dmigoto é a base do GIMI no PC (Windows DirectX 11), permitindo a comunidade
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Abordagem Vulkan Layer / Graphics Hooking | Permite interceptar recursos gráficos sem alterar arquivos do jogo | — Pending |
-| Compatibilidade nativa com .ini do 3dmigoto | Permite reutilizar a vasta biblioteca de mods e fixes existentes | — Pending |
+| Abordagem Vulkan Layer / Graphics Hooking | Permite interceptar recursos gráficos sem alterar arquivos do jogo | Validated (Phase 1 & 8) |
+| Compatibilidade nativa com .ini do 3dmigoto | Permite reutilizar a vasta biblioteca de mods e fixes existentes | Validated (Phase 2) |
+| Launcher App Nativo (Compose) com Shizuku | Facilita a injeção da camada Vulkan e a gestão visual de mods sem exigir root | Validated (Phase 5, 7, 8.6) |
+| Remoção de Dumping e Serviços em Background | Simplifica o launcher e reduz o impacto na performance e segurança (anti-cheat) | Validated (Phase 10) |
 
 ## Evolution
 
@@ -63,4 +65,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-03 after initialization*
+*Last updated: 2026-08-06 after Phase 10 completion*
