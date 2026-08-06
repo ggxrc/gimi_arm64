@@ -1,36 +1,136 @@
-# Plan 10-01: Summary Report
+---
+phase: 10-real-mod-testing-adaptation
+plan: 01
+subsystem: ui
+tags: [android, cpp, jni, vulkan, gles]
 
-## Executed Work
+# Dependency graph
+requires:
+  - phase: 08-02
+    provides: GLES hooking and E2E mod validation
+provides:
+  - Refactored premium dark theme launcher GUI
+  - Removed background foreground/overlay services
+  - Removed native resource hash dumping engine
+  - Biligual (English and Portuguese) technical documentation
+affects: [open-source publication, future mod managers]
 
-### 1. Task 1: Log de Renderização em Tempo Real (`/sdcard/GIMI/gimi_render.log`)
-- Atualizado `include/utils/logger.h` e `src/utils/logger.cpp` com o singleton `FileLogger`.
-- Criado o macro `LOGR(...)` para registrar eventos de renderização (hashes capturados, trocas de buffers/texturas e matches de `.ini`) simultaneamente no logcat do Android e no arquivo `/sdcard/GIMI/gimi_render.log`.
+# Actuals
+actuals:
+  tokens: 13000
+  tasks: 3
+  commits: 3
 
-### 2. Task 2: Service de Notificação Persistente no Android (`GimiForegroundService.java`)
-- Criado `app/src/main/java/com/gimi/launcher/service/GimiForegroundService.java` com notificação persistente `START_STICKY`.
-- Ações rápidas na notificação:
-  - **`⚡ Recarregar Mods`**: dispara `GimiNativeBridge.reloadMods()` via BroadcastReceiver.
-  - **`📸 Dump Hashes`**: alterna `GimiNativeBridge.setDumpEnabled(boolean)` atualizando o título da notificação em tempo real (`Dump ON` / `Dump OFF`).
-- Atualizado `AndroidManifest.xml` com as permissões `FOREGROUND_SERVICE` e `POST_NOTIFICATIONS`.
-- Integrado o início automático do serviço ao clicar em **`🚀 INJECT LAYER & LAUNCH GAME`** e a parada no **`🛑 RESET / DESATIVAR VULKAN LAYER`** em `MainActivity.java`.
+# Tech tracking
+tech-stack:
+  added: []
+  patterns: [Vulkan Implicit Layer, EGL Hooking, Android Bottom Navigation]
 
-### 3. Task 3: JNI Bridge & Engine Nativa de Dump e Hot-Reload
-- Implementados os métodos nativos em `src/launcher/gimi_native_bridge.cpp`:
-  - `nativeReloadMods()`: invalida os caches de hashes (`HashRegistry::instance().clear()`) e recarrega os mods (`ModManagerService::instance().reload()`).
-  - `nativeSetDumpEnabled(jboolean)`: ativa/desativa a salvamento de buffers/texturas.
-  - `nativeInitLogger()`: inicializa a gravação do arquivo `/sdcard/GIMI/gimi_render.log`.
-- Atualizado `src/hash/resource_hash_engine.cpp` para gravar buffers de vértices (`.buf`) na pasta `/sdcard/GIMI/Dump/` quando o modo Dump estiver ativado.
+key-files:
+  created: [README.pt-br.md]
+  modified: [app/src/main/AndroidManifest.xml, app/src/main/java/com/gimi/launcher/MainActivity.java, app/src/main/java/com/gimi/launcher/jni/GimiNativeBridge.java, src/launcher/gimi_native_bridge.cpp, include/hash/resource_hash_engine.h, src/hash/resource_hash_engine.cpp, src/graphics/egl_hook.cpp, src/graphics/gles_hook.cpp, src/graphics/vulkan_layer.cpp, README.md]
 
-### 4. Task 4: Compilação, Assinatura e Validação do APK
-- Compilação realizada com sucesso via `bash build_termux.sh`.
-- APK gerado: `GIMI-Launcher.apk` (Signature Scheme v3 **Verified Cleanly**).
-- Tamanho de `classes.dex`: **31.4 KB**.
-- Tamanho de `libgimi_arm64.so`: **171.8 KB**.
+key-decisions:
+  - "Removed the floating overlay UI and background service entirely in favor of an injection-only model via secure settings"
+  - "Positioned the navigation bar at the bottom of the screen to align with modern Android UI design patterns"
 
+patterns-established:
+  - "Android Bottom Navigation via layout weights and container reordering"
+
+requirements-completed: [LAUNCHER-01, LAUNCHER-02, LAUNCHER-03]
+
+coverage:
+  - id: D1
+    description: "Remove background services and dump functionality from launcher interface and graphics engine"
+    requirement: LAUNCHER-01
+    verification:
+      - kind: integration
+        ref: "bash build_termux.sh"
+        status: pass
+    human_judgment: false
+  - id: D2
+    description: "Refactor launcher GUI to a modern premium dark theme with bottom navigation bar and active mods counter"
+    requirement: LAUNCHER-02
+    verification:
+      - kind: integration
+        ref: "bash build_termux.sh"
+        status: pass
+    human_judgment: false
+  - id: D3
+    description: "Create bilingual README documentation covering Vulkan/GLES hook technical design, Shizuku setup, and contribution guides"
+    requirement: LAUNCHER-03
+    verification:
+      - kind: integration
+        ref: "test -f README.md && test -f README.pt-br.md"
+        status: pass
+    human_judgment: false
+
+# Metrics
+duration: 15min
+completed: 2026-08-06
+status: complete
 ---
 
-## Verification Results
+# Phase 10 Plan 01: Refatoração UI, Remoção de Dump/Serviços e Documentação Open-Source Summary
 
-1. **APK Signature:** `apksigner verify -v GIMI-Launcher.apk` -> **PASS**
-2. **C++ Native Compilation:** `libgimi_arm64.so` compilado sem erros em C++20.
-3. **Java SDK Launcher:** `GimiForegroundService` + `MainActivity` integrados sem dependências externas.
+**Launcher refactored to premium dark theme with bottom navigation, background services and dump engine completely removed, and comprehensive bilingual documentation added**
+
+## Performance
+
+- **Duration:** 15 min
+- **Started:** 2026-08-06T18:15:53Z
+- **Completed:** 2026-08-06T18:30:00Z
+- **Tasks:** 3 completed
+- **Files modified:** 11 modified, 1 created, 2 deleted
+
+## Accomplishments
+- Removed all background services (`GimiForegroundService`, `GimiOverlayService`), notification permissions, and system alert windows.
+- Excised the resource hash dumping engine and functions (`set_dump_enabled`, `dump_buffer`) from C++, Java, and the JNI bridge.
+- Redesigned the Launcher to use a premium dark layout (#121212 / #1E1E1E) with a bottom navigation bar.
+- Implemented an elegant search field and an active/total mods status counter inside the Mod Manager tab.
+- Created bilingual documentation (`README.md` and `README.pt-br.md`) covering the project structure, Shizuku configuration, and graphics hook deep-dive.
+
+## Task Commits
+
+Each task was committed atomically:
+
+1. **Task 1: Remoção do Dump e dos Serviços em Segundo Plano (C++ e Java)** - `05f381c` (feat)
+2. **Task 2: Refatoração Visual do Launcher para Design Moderno Escuro** - `7a58567` (feat)
+3. **Task 3: Elaboração da Documentação Bilíngue Open-Source** - `45db731` (docs)
+
+## Files Created/Modified/Deleted
+- `app/src/main/AndroidManifest.xml` - Removed service declarations and permissions
+- `app/src/main/java/com/gimi/launcher/MainActivity.java` - Refactored UI layout, colors, and removed service triggers
+- `app/src/main/java/com/gimi/launcher/jni/GimiNativeBridge.java` - Removed dump/logger JNI declarations
+- `src/launcher/gimi_native_bridge.cpp` - Removed dump/logger JNI endpoints
+- `include/hash/resource_hash_engine.h` - Excised dump fields and methods
+- `src/hash/resource_hash_engine.cpp` - Removed dump logic from hashing flow
+- `src/graphics/egl_hook.cpp` - Removed GLES buffer dump check
+- `src/graphics/gles_hook.cpp` - Removed GLES draw dump check
+- `src/graphics/vulkan_layer.cpp` - Removed Vulkan draw dump check
+- `README.md` - Rewritten English documentation
+- `README.pt-br.md` - Created Portuguese translation
+- `app/src/main/java/com/gimi/launcher/service/GimiForegroundService.java` - Deleted
+- `app/src/main/java/com/gimi/launcher/service/GimiOverlayService.java` - Deleted
+
+## Decisions Made
+- Reordered container additions in `setupUI` to shift the tab bar to the bottom of the screen dynamically, improving UX.
+- Replaced the input background in Mod Manager search field with a contrasting dark background (#121212) inside the card for a more premium visual weight.
+
+## Deviations from Plan
+None - plan executed exactly as written.
+
+## Issues Encountered
+None - the build process successfully compiled all files using Termux.
+
+## User Setup Required
+None - no external service configuration required.
+
+## Next Phase Readiness
+The codebase is clean, well-documented, compiles without errors, and is ready for open-source release.
+
+---
+*Phase: 10-real-mod-testing-adaptation*
+*Completed: 2026-08-06*
+
+## Self-Check: PASSED

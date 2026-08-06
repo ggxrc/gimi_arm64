@@ -36,6 +36,12 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TEX-02**: Suportar carregamento de texturas nos formatos móveis nativos (ASTC / ETC2 / RGBA8)
 - [x] **TEX-03**: Substituir bind de texturas originais do jogo pelas texturas do mod quando os hashes corresponderem
 
+### Launcher App
+
+- [x] **LAUNCHER-01**: Criar interface gráfica Android nativa para gerenciamento visual de mods (listagem, busca e ativação)
+- [x] **LAUNCHER-02**: Implementar gerenciador de injeção da Vulkan/GLES layer via Shizuku API ou configurações seguras (WRITE_SECURE_SETTINGS)
+- [x] **LAUNCHER-03**: Auto-detectar e suportar todas as variantes instaladas do jogo (Global, Samsung, China, Bilibili)
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -75,10 +81,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEX-01 | Phase 4 | Completed |
 | TEX-02 | Phase 4 | Completed |
 | TEX-03 | Phase 4 | Completed |
+| LAUNCHER-01 | Phase 5, Phase 10 | Completed |
+| LAUNCHER-02 | Phase 5, Phase 10 | Completed |
+| LAUNCHER-03 | Phase 5, Phase 10 | Completed |
 
 **Coverage:**
-- v1 requirements: 14 total
-- Mapped to phases: 14
+- v1 requirements: 17 total
+- Mapped to phases: 17
 - Unmapped: 0 ✓
 
 ---
