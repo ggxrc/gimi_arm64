@@ -16,7 +16,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 - [x] **Phase 8.6: Compatibilidade Android 16 (API 36) / Min SDK 29, Modern Gradle & Shizuku IPC** - Suporte ao Android 10-16, Gradle 8.2+ para Android Studio e pipeline leve Termux
 - [x] **Phase 9: Pipeline de Compilação Padrão Gradle (`gradlew assembleDebug`)** - Configuração e validação completa do build via Gradle nativo
-- [x] **Phase 10: Testes Reais, Adaptação de Mods & Notificação de Controle (v1.0 Final)** - Log de renderização em tempo real, notificação fixa de controle (Hot-reload & Dump) e libgimi_arm64.so finalizada
+- [ ] **Phase 10: Refatoração Visual, Simplificação de Serviços & Documentação Open-Source** - Refatoração do launcher para tema escuro moderno, remoção de dump/serviços em background, e documentação técnica bilíngue
 
 ## Phase Details
 
@@ -137,6 +137,19 @@ Plans:
 - [x] 08-01: Suporte a Interceptação de Renderização OpenGL ES (GLES 3.x)
 - [x] 08-02: Suíte de Testes E2E com pacote de mod existente do 3dmigoto
 
+### Phase 10: Refatoração Visual, Simplificação de Serviços & Documentação Open-Source
+**Goal:** Refatorar a interface gráfica para tema escuro moderno, remover serviços de segundo plano e o dump nativo de hashes, e documentar o projeto para open-source.
+**Depends on:** Phase 8.5
+**Requirements:** [LAUNCHER-01, LAUNCHER-02, LAUNCHER-03]
+**Success Criteria**:
+  1. Interface do app totalmente reformulada com estilo Minimalista Escuro Moderno.
+  2. Nenhuma ferramenta de dump (C++ e Java) ou serviço em background ativa durante o jogo.
+  3. Documentação técnica e guia de contribuição bilíngues presentes e formatados.
+**Plans:** 1 plan
+
+Plans:
+- [ ] 10-01-PLAN.md — Refatoração de UI, remoção de Dump/Serviços e documentação open-source
+
 ## Progress
 
 **Execution Order:**
@@ -153,3 +166,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 7. Android Launcher GUI (Jetpack Compose) | 2/2 | Complete | 2026-08-03 |
 | 8. Suporte OpenGL ES & Teste com Mod Real | 2/2 | Complete | 2026-08-03 |
 | 8.5. Correções de Bugs (Storage/Injeção) | 1/1 | Complete | 2026-08-03 |
+| 10. Refatoração Visual & Docs | 0/1 | Planned | 2026-08-06 |
