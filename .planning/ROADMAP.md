@@ -16,7 +16,7 @@ O gimi_arm64 traz a capacidade de model importing do 3dmigoto para dispositivos 
 - [x] **Phase 8: Suporte a OpenGL ES & Testes E2E com Mod Existente** - Hooking GLES 3.x e validação ponta a ponta com mod real do 3dmigoto
 - [x] **Phase 8.6: Compatibilidade Android 16 (API 36) / Min SDK 29, Modern Gradle & Shizuku IPC** - Suporte ao Android 10-16, Gradle 8.2+ para Android Studio e pipeline leve Termux
 - [x] **Phase 9: Pipeline de Compilação Padrão Gradle (`gradlew assembleDebug`)** - Configuração e validação completa do build via Gradle nativo
-- [ ] **Phase 10: Refatoração Visual, Simplificação de Serviços & Documentação Open-Source** - Refatoração do launcher para tema escuro moderno, remoção de dump/serviços em background, e documentação técnica bilíngue
+- [x] **Phase 10: Refatoração Visual, Simplificação de Serviços & Documentação Open-Source** - Refatoração do launcher para tema escuro moderno, remoção de dump/serviços em background, e documentação técnica bilíngue (completed 2026-08-06)
 
 ## Phase Details
 
@@ -180,7 +180,7 @@ Plans:
   2. Nenhuma ferramenta de dump (C++ e Java) ou serviço em background ativa durante o jogo.
   3. Documentação técnica e guia de contribuição bilíngues presentes e formatados.
 
-**Plans:** 1/1 plans executed
+**Plans:** 1/1 plans complete
 
 Plans:
 
@@ -202,4 +202,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 7. Android Launcher GUI (Jetpack Compose) | 2/2 | Complete | 2026-08-03 |
 | 8. Suporte OpenGL ES & Teste com Mod Real | 2/2 | Complete | 2026-08-03 |
 | 8.5. Correções de Bugs (Storage/Injeção) | 1/1 | Complete | 2026-08-03 |
-| 10. Refatoração Visual & Docs | 1/1 | In Progress|  |
+| 10. Refatoração Visual & Docs | 1/1 | Complete    | 2026-08-06 |
