@@ -33,7 +33,6 @@ import android.widget.Toast;
 
 import com.gimi.launcher.jni.GimiNativeBridge;
 import com.gimi.launcher.jni.ModInfo;
-import com.gimi.launcher.service.GimiForegroundService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,24 +90,13 @@ public class MainActivity extends Activity {
         "🟢 Vulkan 1.3 (Vulkan Layer)"
     };
 
-    // Developer & Modder Toggles
-    private boolean enableOverlay = true;
-    private boolean enableNotification = true;
-    private boolean enableDumpMode = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         try {
             ensureModsDirectory();
-            ensureDumpDirectory();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-
-        try {
-            GimiNativeBridge.initLogger();
+            copyNativeLibrary();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -155,11 +143,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void ensureDumpDirectory() {
-        File dumpDir = new File("/sdcard/GIMI/Dump");
-        if (!dumpDir.exists()) {
-            dumpDir.mkdirs();
-        }
+    private void copyNativeLibrary() {
         try {
             String nativeLibDir = getApplicationInfo().nativeLibraryDir;
             File nativeLibFile = new File(nativeLibDir, "libgimi_arm64.so");
@@ -179,15 +163,6 @@ public class MainActivity extends Activity {
     }
 
     private void checkStoragePermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
-                try {
-                    requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 101);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 try {
@@ -223,7 +198,7 @@ public class MainActivity extends Activity {
 
         TextView titleText = new TextView(this);
         titleText.setText("GIMI Launcher");
-        titleText.setTextColor(Color.WHITE);
+        titleText.setTextColor(Color.parseColor("#00E5FF"));
         titleText.setTextSize(26f);
         titleText.setTypeface(null, Typeface.BOLD);
 
@@ -236,14 +211,33 @@ public class MainActivity extends Activity {
         headerLayout.addView(subtitleText);
         rootLayout.addView(headerLayout);
 
-        // Navigation Tab Bar
+        // Main Content Container
+        mainContainer = new LinearLayout(this);
+        mainContainer.setOrientation(LinearLayout.VERTICAL);
+        mainContainer.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0,
+            1.0f
+        ));
+
+        // Create Tab Views
+        dashboardView = createDashboardView();
+        modsView = createModsView();
+        settingsView = createSettingsView();
+
+        mainContainer.addView(dashboardView);
+        mainContainer.addView(modsView);
+        mainContainer.addView(settingsView);
+        rootLayout.addView(mainContainer);
+
+        // Navigation Tab Bar (Bottom)
         LinearLayout tabBar = new LinearLayout(this);
         tabBar.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams tabParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        tabParams.setMargins(0, 0, 0, 20);
+        tabParams.setMargins(0, 20, 0, 0);
         tabBar.setLayoutParams(tabParams);
 
         tabDashboardBtn = createTabButton("Dashboard", true);
@@ -275,26 +269,7 @@ public class MainActivity extends Activity {
         tabBar.addView(tabModsBtn);
         tabBar.addView(tabSettingsBtn);
         rootLayout.addView(tabBar);
-
-        // Main Content Container
-        mainContainer = new LinearLayout(this);
-        mainContainer.setOrientation(LinearLayout.VERTICAL);
-        mainContainer.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            0,
-            1.0f
-        ));
-
-        // Create Tab Views
-        dashboardView = createDashboardView();
-        modsView = createModsView();
-        settingsView = createSettingsView();
-
-        mainContainer.addView(dashboardView);
-        mainContainer.addView(modsView);
-        mainContainer.addView(settingsView);
-
-        rootLayout.addView(mainContainer);
+        
         setContentView(rootLayout);
 
         switchTab(0);
@@ -316,11 +291,11 @@ public class MainActivity extends Activity {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(16f);
         if (active) {
-            drawable.setColor(Color.parseColor("#00E676"));
-            btn.setTextColor(Color.BLACK);
+            drawable.setColor(Color.parseColor("#00E5FF"));
+            btn.setTextColor(Color.parseColor("#121212"));
             btn.setTypeface(null, Typeface.BOLD);
         } else {
-            drawable.setColor(Color.parseColor("#263238"));
+            drawable.setColor(Color.parseColor("#1E1E1E"));
             btn.setTextColor(Color.WHITE);
             btn.setTypeface(null, Typeface.NORMAL);
         }
@@ -357,7 +332,7 @@ public class MainActivity extends Activity {
         LinearLayout vulkanCard = createCardLayout();
         TextView vulkanTitle = new TextView(this);
         vulkanTitle.setText("Vulkan Layer Status");
-        vulkanTitle.setTextColor(Color.WHITE);
+        vulkanTitle.setTextColor(Color.parseColor("#00E5FF"));
         vulkanTitle.setTextSize(16f);
         vulkanTitle.setTypeface(null, Typeface.BOLD);
 
@@ -376,7 +351,7 @@ public class MainActivity extends Activity {
         LinearLayout adbCard = createCardLayout();
         TextView adbTitle = new TextView(this);
         adbTitle.setText("ADB Privilege Status (WRITE_SECURE_SETTINGS)");
-        adbTitle.setTextColor(Color.WHITE);
+        adbTitle.setTextColor(Color.parseColor("#00E5FF"));
         adbTitle.setTextSize(16f);
         adbTitle.setTypeface(null, Typeface.BOLD);
 
@@ -575,7 +550,7 @@ public class MainActivity extends Activity {
         LinearLayout gameCard = createCardLayout();
         TextView gameTitle = new TextView(this);
         gameTitle.setText("Target Game Variant & Controls");
-        gameTitle.setTextColor(Color.WHITE);
+        gameTitle.setTextColor(Color.parseColor("#00E5FF"));
         gameTitle.setTextSize(16f);
         gameTitle.setTypeface(null, Typeface.BOLD);
         gameCard.addView(gameTitle);
@@ -787,14 +762,7 @@ public class MainActivity extends Activity {
 
             refreshDashboardStatus();
 
-            // Start Services according to Developer Options
-            if (enableNotification) {
-                startForegroundService();
-            }
 
-            if (enableOverlay) {
-                startOverlayService();
-            }
 
             Intent launchIntent = getPackageManager().getLaunchIntentForPackage(selectedPackage);
             if (launchIntent != null) {
@@ -825,9 +793,7 @@ public class MainActivity extends Activity {
             Settings.Global.putString(getContentResolver(), "gpu_debug_layers", "");
             Settings.Global.putString(getContentResolver(), "gpu_debug_layers_gles", "");
 
-            // Stop Services
-            stopForegroundService();
-            stopOverlayService();
+
 
             outputLogText.setText("System Output: Reverted Vulkan debug layer settings (Layer Disabled).");
             outputLogText.setTextColor(Color.parseColor("#80D8FF"));
@@ -857,7 +823,7 @@ public class MainActivity extends Activity {
         LinearLayout searchCard = createCardLayout();
         TextView title = new TextView(this);
         title.setText("Mod Manager");
-        title.setTextColor(Color.WHITE);
+        title.setTextColor(Color.parseColor("#00E5FF"));
         title.setTextSize(18f);
         title.setTypeface(null, Typeface.BOLD);
 
@@ -866,8 +832,11 @@ public class MainActivity extends Activity {
         searchEditText.setHintTextColor(Color.parseColor("#78909C"));
         searchEditText.setTextColor(Color.WHITE);
         searchEditText.setTextSize(14f);
-        searchEditText.setPadding(16, 16, 16, 16);
-        searchEditText.setBackgroundColor(Color.parseColor("#263238"));
+        searchEditText.setPadding(24, 16, 24, 16);
+        GradientDrawable searchBg = new GradientDrawable();
+        searchBg.setColor(Color.parseColor("#121212"));
+        searchBg.setCornerRadius(12f);
+        searchEditText.setBackground(searchBg);
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -991,8 +960,15 @@ public class MainActivity extends Activity {
             }
         }
 
+        int activeCount = 0;
+        for (ModInfo m : currentModsList) {
+            if (m.isEnabled()) {
+                activeCount++;
+            }
+        }
+
         if (modCountText != null) {
-            modCountText.setText("Total Mods: " + filtered.size());
+            modCountText.setText("Mods: " + currentModsList.size() + " | Active: " + activeCount);
         }
 
         if (filtered.isEmpty()) {
@@ -1036,6 +1012,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     GimiNativeBridge.toggleMod(mod.getPath(), isChecked);
+                    refreshModsList();
                 }
             });
 
@@ -1061,7 +1038,7 @@ public class MainActivity extends Activity {
         LinearLayout settingsCard = createCardLayout();
         TextView title = new TextView(this);
         title.setText("Settings & Directory Paths");
-        title.setTextColor(Color.WHITE);
+        title.setTextColor(Color.parseColor("#00E5FF"));
         title.setTextSize(18f);
         title.setTypeface(null, Typeface.BOLD);
 
@@ -1083,128 +1060,10 @@ public class MainActivity extends Activity {
         settingsCard.addView(pathEditText);
         layout.addView(settingsCard);
 
-        // Developer & Modder Options Card
-        LinearLayout devCard = createCardLayout();
-        TextView devTitle = new TextView(this);
-        devTitle.setText("Developer & Modder Tools");
-        devTitle.setTextColor(Color.parseColor("#00E676"));
-        devTitle.setTextSize(16f);
-        devTitle.setTypeface(null, Typeface.BOLD);
-
-        // 1. Overlay Widget Switch
-        LinearLayout row1 = new LinearLayout(this);
-        row1.setOrientation(LinearLayout.HORIZONTAL);
-        row1.setGravity(Gravity.CENTER_VERTICAL);
-        row1.setPadding(0, 12, 0, 4);
-
-        TextView label1 = new TextView(this);
-        label1.setText("🎮 Menu Flutuante no Jogo (Overlay Widget)");
-        label1.setTextColor(Color.WHITE);
-        label1.setTextSize(13f);
-        label1.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-
-        Switch overlaySwitch = new Switch(this);
-        overlaySwitch.setChecked(enableOverlay);
-        overlaySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                enableOverlay = isChecked;
-                if (isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (!Settings.canDrawOverlays(MainActivity.this)) {
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:" + getPackageName()));
-                        startActivity(intent);
-                    }
-                }
-            }
-        });
-        row1.addView(label1);
-        row1.addView(overlaySwitch);
-
-        // 2. Notification Switch
-        LinearLayout row2 = new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.setGravity(Gravity.CENTER_VERTICAL);
-        row2.setPadding(0, 8, 0, 4);
-
-        TextView label2 = new TextView(this);
-        label2.setText("🔔 Notificação Fixa em Segundo Plano");
-        label2.setTextColor(Color.WHITE);
-        label2.setTextSize(13f);
-        label2.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-
-        Switch notifSwitch = new Switch(this);
-        notifSwitch.setChecked(enableNotification);
-        notifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                enableNotification = isChecked;
-            }
-        });
-        row2.addView(label2);
-        row2.addView(notifSwitch);
-
-        // 3. Dump Mode Switch
-        LinearLayout row3 = new LinearLayout(this);
-        row3.setOrientation(LinearLayout.HORIZONTAL);
-        row3.setGravity(Gravity.CENTER_VERTICAL);
-        row3.setPadding(0, 8, 0, 8);
-
-        TextView label3 = new TextView(this);
-        label3.setText("📸 Extração Automática de Hashes (Dump Mode)");
-        label3.setTextColor(Color.WHITE);
-        label3.setTextSize(13f);
-        label3.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-
-        Switch dumpSwitch = new Switch(this);
-        dumpSwitch.setChecked(enableDumpMode);
-        dumpSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                enableDumpMode = isChecked;
-                GimiNativeBridge.setDumpEnabled(isChecked);
-                Toast.makeText(MainActivity.this, isChecked ? "Dump Ativado!" : "Dump Desativado!", Toast.LENGTH_SHORT).show();
-            }
-        });
-        row3.addView(label3);
-        row3.addView(dumpSwitch);
-
-        // Clean Dumps Button
-        Button cleanDumpsBtn = new Button(this);
-        cleanDumpsBtn.setText("🗑️ Limpar Pasta de Dumps (/sdcard/GIMI/Dump)");
-        cleanDumpsBtn.setTextSize(11f);
-        cleanDumpsBtn.setAllCaps(false);
-        cleanDumpsBtn.setTextColor(Color.WHITE);
-        cleanDumpsBtn.setBackground(createButtonDrawable("#37474F"));
-        cleanDumpsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    File dumpDir = new File("/sdcard/GIMI/Dump");
-                    if (dumpDir.exists() && dumpDir.isDirectory()) {
-                        File[] files = dumpDir.listFiles();
-                        if (files != null) {
-                            for (File f : files) f.delete();
-                        }
-                    }
-                    Toast.makeText(MainActivity.this, "Pasta Dump limpa!", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        devCard.addView(devTitle);
-        devCard.addView(row1);
-        devCard.addView(row2);
-        devCard.addView(row3);
-        devCard.addView(cleanDumpsBtn);
-        layout.addView(devCard);
-
         LinearLayout infoCard = createCardLayout();
         TextView infoTitle = new TextView(this);
         infoTitle.setText("App & System Info");
-        infoTitle.setTextColor(Color.WHITE);
+        infoTitle.setTextColor(Color.parseColor("#00E5FF"));
         infoTitle.setTextSize(16f);
         infoTitle.setTypeface(null, Typeface.BOLD);
 
@@ -1262,55 +1121,5 @@ public class MainActivity extends Activity {
             clipboard.setPrimaryClip(clip);
         }
         Toast.makeText(this, toastMsg, Toast.LENGTH_SHORT).show();
-    }
-
-    // ─── Foreground Service Controls ────────────────────────────────────────
-    private void startForegroundService() {
-        try {
-            Intent serviceIntent = new Intent(this, GimiForegroundService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void stopForegroundService() {
-        try {
-            Intent serviceIntent = new Intent(this, GimiForegroundService.class);
-            stopService(serviceIntent);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void startOverlayService() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, "Conceda a permissão de Exibir sobre outros apps!", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + getPackageName()));
-                    startActivity(intent);
-                    return;
-                }
-            }
-            Intent overlayIntent = new Intent(this, com.gimi.launcher.service.GimiOverlayService.class);
-            startService(overlayIntent);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void stopOverlayService() {
-        try {
-            Intent overlayIntent = new Intent(this, com.gimi.launcher.service.GimiOverlayService.class);
-            stopService(overlayIntent);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
     }
 }
